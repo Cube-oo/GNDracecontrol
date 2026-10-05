@@ -1,0 +1,3722 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C:\GND\RACECONTROL · GND Live Video</title>
+
+<style>
+:root{
+  --blue:#005b96;
+  --blue-dark:#003f73;
+  --navy:#001f3f;
+  --line:#d7e2ec;
+  --text:#102033;
+  --bg:#f3f7fb;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  width:100%;
+  min-height:100%;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+  color:var(--text);
+}
+
+.top-strip{
+  height:36px;
+  background:#172027;
+}
+
+header{
+  background:#fff;
+  border-bottom:1px solid #e5edf5;
+  box-shadow:0 8px 24px rgba(0,0,0,.06);
+}
+
+.header-inner{
+  padding:22px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.site-logo{
+  width:126px;
+  height:auto;
+  display:block;
+}
+
+.brand-title small{
+  display:block;
+  color:var(--blue);
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:12px;
+  margin-bottom:4px;
+}
+
+.brand-title h1{
+  margin:0;
+  color:var(--navy);
+  font-size:26px;
+  line-height:1.1;
+}
+
+.header-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+button,select{
+  min-height:40px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--navy);
+  font-weight:800;
+  font-size:12px;
+}
+
+button{
+  padding:0 16px;
+  cursor:pointer;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+button.primary{
+  background:var(--blue);
+  color:#fff;
+  border-color:var(--blue);
+}
+
+main{
+  padding:24px;
+}
+
+.settings-panel{
+  display:none;
+  margin-bottom:18px;
+}
+
+.settings-panel.open{
+  display:block;
+}
+
+.system-status{
+  margin-bottom:10px;
+  padding:14px 16px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(0,0,0,.05);
+  font-size:13px;
+  color:#4d5d6e;
+}
+
+.system-status strong{
+  color:var(--navy);
+}
+
+.system-status.error{
+  border-color:#efcaca;
+  background:#fff5f5;
+  color:#9c1b1b;
+}
+
+.source-panel{
+  margin-bottom:18px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.source-panel select{
+  min-width:280px;
+  padding:0 12px;
+}
+
+.preview-panel{
+  margin-top:12px;
+  padding:12px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+
+.preview-title{
+  margin-bottom:8px;
+  color:var(--navy);
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.preview-wrap{
+  width:min(640px,100%);
+  aspect-ratio:16/9;
+  background:#000;
+  overflow:hidden;
+  border-radius:10px;
+}
+
+.preview-wrap video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+  background:#000;
+}
+
+.video-grid{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:4px;
+  background:#000;
+}
+
+.feed-card{
+  position:relative;
+  aspect-ratio:16/9;
+  overflow:hidden;
+  background:#071525;
+}
+
+.feed-label{
+  position:absolute;
+  left:12px;
+  top:12px;
+  z-index:10;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(0,0,0,.60);
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+/* Ogni riquadro mostra un quadrante dello stesso stream 2×2 */
+.feed-view{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  background:#000;
+}
+
+.feed-view canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  background:#000;
+}
+
+.placeholder{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#9eb0bf;
+  font-weight:800;
+  font-size:14px;
+  z-index:2;
+}
+
+.feed-card.active .placeholder{
+  display:none;
+}
+
+footer{
+  text-align:center;
+  padding:22px;
+  color:#6d7b88;
+  font-size:12px;
+}
+
+/* FULLSCREEN MATRIX */
+body.presentation-mode{
+  background:#000;
+  overflow:hidden;
+}
+
+body.presentation-mode .top-strip,
+body.presentation-mode header,
+body.presentation-mode footer,
+body.presentation-mode .settings-panel,
+body.presentation-mode .system-status,
+body.presentation-mode .source-panel{
+  display:none;
+}
+
+body.presentation-mode main{
+  padding:0;
+  width:100vw;
+  height:100vh;
+}
+
+body.presentation-mode .video-grid{
+  width:100vw;
+  height:100vh;
+  gap:2px;
+}
+
+body.presentation-mode .feed-card{
+  aspect-ratio:auto;
+  height:50vh;
+}
+
+body.presentation-mode .feed-label{
+  font-size:clamp(11px,1vw,18px);
+}
+
+
+.heat-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+  padding:12px 14px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,.05);
+}
+
+.heat-toolbar-left,
+.heat-toolbar-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.heat-current{
+  color:var(--navy);
+  font-size:16px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+
+.sheet-config{
+  margin-top:12px;
+  padding:12px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+
+.sheet-config-title{
+  margin-bottom:8px;
+  color:var(--navy);
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.sheet-config-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.sheet-config input{
+  flex:1 1 420px;
+  min-height:40px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:12px;
+  color:var(--navy);
+  background:#fff;
+}
+
+
+
+
+/* GND broadcast lower third */
+.pilot-overlay{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:14px;
+  z-index:20;
+
+  min-height:58px;
+  display:grid;
+  grid-template-columns:72px minmax(0,1fr) 132px;
+  align-items:stretch;
+
+  overflow:hidden;
+  background:rgba(10,12,16,.92);
+  border:1px solid rgba(255,255,255,.08);
+  border-bottom:3px solid #168ee0;
+  box-shadow:0 8px 18px rgba(0,0,0,.30);
+  backdrop-filter:blur(4px);
+}
+
+.pilot-overlay::before,
+.pilot-overlay::after{
+  display:none;
+}
+
+/* Left category block, replacing the "position" feel of the F1 graphic */
+.pilot-category{
+  grid-column:1;
+  grid-row:1;
+  min-width:0;
+  padding:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#0b67b2;
+  border-right:1px solid rgba(255,255,255,.10);
+
+  color:#fff;
+  font-size:clamp(15px,1.15vw,21px);
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  clip-path:none;
+}
+
+/* Center: pilot identity */
+.pilot-main{
+  grid-column:2;
+  grid-row:1;
+
+  min-width:0;
+  padding:7px 14px 6px;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:3px;
+}
+
+.pilot-name{
+  min-width:0;
+
+  color:#fff;
+  font-size:clamp(17px,1.35vw,25px);
+  line-height:.95;
+  font-weight:900;
+  letter-spacing:-.025em;
+  text-transform:uppercase;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-shadow:none;
+}
+
+/* Right: ID, styled like a compact telemetry field */
+.pilot-meta{
+  grid-column:3;
+  grid-row:1;
+
+  margin:0;
+  padding:0 13px;
+
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+
+  border-left:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.025);
+}
+
+.pilot-id{
+  min-height:0;
+  padding:0;
+
+  display:block;
+  background:none;
+  border:0;
+  border-radius:0;
+
+  color:#c6cbd2;
+  font-size:clamp(10px,.72vw,12px);
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.pilot-id::before{
+  content:"PILOT ID";
+  display:block;
+  width:auto;
+  height:auto;
+  margin:0 0 3px 0;
+
+  background:none;
+  box-shadow:none;
+  transform:none;
+
+  color:#666d75;
+  font-size:8px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+
+/* PRO */
+.pilot-overlay.category-pro{
+  background:rgba(8,17,28,.92);
+  border-bottom-color:#168ee0;
+}
+
+.pilot-overlay.category-pro .pilot-category{
+  background:#0a68b7;
+  color:#fff;
+}
+
+/* OPEN */
+.pilot-overlay.category-open{
+  background:rgba(28,8,10,.92);
+  border-bottom-color:#e4232c;
+}
+
+.pilot-overlay.category-open .pilot-category{
+  background:#b3131b;
+  color:#fff;
+}
+
+.pilot-overlay.empty{
+  opacity:.55;
+}
+
+.pilot-overlay.empty .pilot-category{
+  background:#41464c;
+}
+
+body.presentation-mode .pilot-overlay{
+  left:12px;
+  right:12px;
+  bottom:12px;
+  min-height:62px;
+  grid-template-columns:78px minmax(0,1fr) 145px;
+}
+
+body.presentation-mode .pilot-name{
+  font-size:clamp(18px,1.45vw,27px);
+}
+
+body.presentation-mode .pilot-category{
+  font-size:clamp(16px,1.2vw,22px);
+}
+
+body.presentation-mode .heat-toolbar{
+  position:fixed;
+  top:8px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:100;
+  margin:0;
+  padding:7px 10px;
+  border-color:rgba(255,255,255,.12);
+  background:rgba(0,15,30,.72);
+  color:#fff;
+  box-shadow:none;
+}
+
+body.presentation-mode .heat-current{
+  color:#fff;
+}
+
+body.presentation-mode .heat-toolbar button{
+  min-height:34px;
+  padding:0 12px;
+  background:rgba(255,255,255,.10);
+  color:#fff;
+  border-color:rgba(255,255,255,.18);
+}
+
+body.presentation-mode .pilot-overlay{
+  left:8px;
+  right:8px;
+  bottom:8px;
+}
+
+
+/* Category-driven broadcast label */
+.pilot-overlay{
+  background:linear-gradient(96deg,#071b31 0%,#0b315b 68%,#005b96 100%);
+  border-top:2px solid #36a9ff;
+}
+
+.pilot-overlay::before{
+  background:#168ee0;
+}
+
+.pilot-overlay .pilot-category{
+  background:rgba(0,0,0,.22);
+  border-left:1px solid rgba(255,255,255,.16);
+}
+
+.pilot-overlay .pilot-id::before{
+  background:#39adff;
+}
+
+/* OPEN = RED */
+.pilot-overlay.category-open{
+  background:linear-gradient(96deg,#250606 0%,#761010 68%,#b71c1c 100%);
+  border-top-color:#ff5555;
+}
+
+.pilot-overlay.category-open::before{
+  background:#e12a2a;
+}
+
+.pilot-overlay.category-open .pilot-category{
+  background:rgba(75,0,0,.34);
+}
+
+.pilot-overlay.category-open .pilot-id::before{
+  background:#ff5555;
+}
+
+/* PRO = BLUE */
+.pilot-overlay.category-pro{
+  background:linear-gradient(96deg,#06182c 0%,#103d70 68%,#005b96 100%);
+  border-top-color:#40b4ff;
+}
+
+.pilot-overlay.category-pro::before{
+  background:#1594e8;
+}
+
+.pilot-overlay.category-pro .pilot-category{
+  background:rgba(0,36,70,.34);
+}
+
+.pilot-overlay.category-pro .pilot-id::before{
+  background:#40b4ff;
+}
+
+
+/* Slim semi-transparent pilot labels */
+.pilot-overlay{
+  left:12px;
+  right:12px;
+  bottom:12px;
+  min-height:54px;
+  grid-template-columns:6px minmax(0,1fr) auto;
+  background:linear-gradient(96deg,
+    rgba(7,27,49,.68) 0%,
+    rgba(11,49,91,.62) 68%,
+    rgba(0,91,150,.58) 100%);
+  border-top:1px solid rgba(64,180,255,.75);
+  border-right:1px solid rgba(255,255,255,.08);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  backdrop-filter:blur(5px);
+  box-shadow:0 8px 20px rgba(0,0,0,.22);
+}
+
+.pilot-main{
+  padding:7px 12px 6px 13px;
+}
+
+.pilot-name{
+  font-size:clamp(15px,1.2vw,22px);
+  line-height:1;
+}
+
+.pilot-meta{
+  margin-top:4px;
+}
+
+.pilot-id{
+  min-height:17px;
+  font-size:clamp(9px,.62vw,11px);
+}
+
+.pilot-id::before{
+  width:16px;
+  height:2px;
+  margin-right:6px;
+}
+
+.pilot-category{
+  min-width:82px;
+  padding:0 12px 0 14px;
+  background:rgba(0,36,70,.38);
+  font-size:clamp(10px,.7vw,12px);
+}
+
+/* OPEN: red but translucent */
+.pilot-overlay.category-open{
+  background:linear-gradient(96deg,
+    rgba(37,6,6,.70) 0%,
+    rgba(118,16,16,.64) 68%,
+    rgba(183,28,28,.58) 100%);
+  border-top-color:rgba(255,85,85,.82);
+}
+
+.pilot-overlay.category-open .pilot-category{
+  background:rgba(75,0,0,.38);
+}
+
+/* PRO: blue but translucent */
+.pilot-overlay.category-pro{
+  background:linear-gradient(96deg,
+    rgba(6,24,44,.70) 0%,
+    rgba(16,61,112,.64) 68%,
+    rgba(0,91,150,.58) 100%);
+  border-top-color:rgba(64,180,255,.82);
+}
+
+.pilot-overlay.category-pro .pilot-category{
+  background:rgba(0,36,70,.38);
+}
+
+body.presentation-mode .pilot-overlay{
+  left:10px;
+  right:10px;
+  bottom:10px;
+  min-height:58px;
+}
+
+body.presentation-mode .pilot-name{
+  font-size:clamp(16px,1.3vw,24px);
+}
+
+body.presentation-mode .pilot-category{
+  min-width:88px;
+  font-size:clamp(10px,.75vw,13px);
+}
+
+
+.heat-description-overlay{
+  position:absolute;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:30;
+  max-width:80%;
+  padding:8px 18px;
+  background:rgba(4,14,26,.72);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  color:#fff;
+  font-size:clamp(13px,1.05vw,19px);
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  text-align:center;
+  backdrop-filter:blur(6px);
+  box-shadow:0 8px 22px rgba(0,0,0,.28);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  pointer-events:none;
+}
+
+body.presentation-mode .heat-description-overlay{
+  top:10px;
+  max-width:72%;
+  padding:9px 20px;
+  font-size:clamp(14px,1.15vw,21px);
+}
+
+
+/* Fullscreen cleanup: broadcast-only view */
+body.presentation-mode .heat-toolbar{
+  display:none !important;
+}
+
+body.presentation-mode .heat-description-overlay{
+  top:14px;
+  z-index:120;
+  max-width:76%;
+  padding:9px 22px;
+  background:rgba(4,14,26,.68);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 8px 24px rgba(0,0,0,.28);
+}
+
+/* Ensure no setup/control panels can overlap the video in fullscreen */
+body.presentation-mode .settings-panel,
+body.presentation-mode .system-status,
+body.presentation-mode .source-panel,
+body.presentation-mode .preview-panel,
+body.presentation-mode .sheet-config{
+  display:none !important;
+}
+
+
+/* High-impact category labels */
+.pilot-overlay.category-pro{
+  background:linear-gradient(96deg,
+    rgba(0,35,88,.88) 0%,
+    rgba(0,103,210,.84) 64%,
+    rgba(0,145,255,.80) 100%);
+  border-top:2px solid #55c8ff;
+  box-shadow:
+    0 8px 24px rgba(0,120,255,.34),
+    0 0 18px rgba(0,145,255,.16);
+}
+
+.pilot-overlay.category-pro::before{
+  background:linear-gradient(180deg,#79dcff 0%,#00a2ff 45%,#006bc7 100%);
+  box-shadow:0 0 12px rgba(0,174,255,.75);
+}
+
+.pilot-overlay.category-pro .pilot-category{
+  background:linear-gradient(135deg,
+    rgba(0,108,224,.94),
+    rgba(0,65,155,.94));
+  color:#fff;
+  text-shadow:0 1px 5px rgba(0,0,0,.35);
+}
+
+.pilot-overlay.category-pro .pilot-id::before{
+  background:#66d5ff;
+  box-shadow:0 0 8px rgba(65,196,255,.75);
+}
+
+/* OPEN = vivid racing red */
+.pilot-overlay.category-open{
+  background:linear-gradient(96deg,
+    rgba(72,0,0,.90) 0%,
+    rgba(205,13,24,.86) 64%,
+    rgba(255,38,45,.82) 100%);
+  border-top:2px solid #ff7676;
+  box-shadow:
+    0 8px 24px rgba(255,24,34,.34),
+    0 0 18px rgba(255,36,45,.16);
+}
+
+.pilot-overlay.category-open::before{
+  background:linear-gradient(180deg,#ff9696 0%,#ff3038 45%,#c4000d 100%);
+  box-shadow:0 0 12px rgba(255,45,55,.78);
+}
+
+.pilot-overlay.category-open .pilot-category{
+  background:linear-gradient(135deg,
+    rgba(244,25,34,.96),
+    rgba(155,0,10,.96));
+  color:#fff;
+  text-shadow:0 1px 5px rgba(0,0,0,.35);
+}
+
+.pilot-overlay.category-open .pilot-id::before{
+  background:#ff8b8b;
+  box-shadow:0 0 8px rgba(255,70,78,.75);
+}
+
+/* Stronger typography without losing video visibility */
+.pilot-overlay.category-pro .pilot-name,
+.pilot-overlay.category-open .pilot-name{
+  color:#fff;
+  text-shadow:
+    0 2px 5px rgba(0,0,0,.72),
+    0 0 8px rgba(255,255,255,.10);
+}
+
+.pilot-overlay.category-pro .pilot-id,
+.pilot-overlay.category-open .pilot-id{
+  color:#f2f8ff;
+}
+
+
+/* Single-line pilot information */
+.pilot-overlay{
+  min-height:44px;
+  grid-template-columns:6px minmax(0,1fr) auto;
+}
+
+.pilot-main{
+  padding:6px 12px 6px 13px;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.pilot-name{
+  flex:1 1 auto;
+  min-width:0;
+  font-size:clamp(14px,1.05vw,20px);
+  line-height:1;
+}
+
+.pilot-meta{
+  flex:0 0 auto;
+  margin-top:0;
+  display:flex;
+  align-items:center;
+}
+
+.pilot-id{
+  min-height:20px;
+  padding:0;
+  white-space:nowrap;
+  font-size:clamp(9px,.62vw,11px);
+}
+
+.pilot-category{
+  min-width:76px;
+  padding:0 11px 0 13px;
+  font-size:clamp(10px,.68vw,12px);
+}
+
+body.presentation-mode .pilot-overlay{
+  min-height:48px;
+}
+
+body.presentation-mode .pilot-main{
+  padding-top:6px;
+  padding-bottom:6px;
+}
+
+body.presentation-mode .pilot-name{
+  font-size:clamp(15px,1.15vw,22px);
+}
+
+
+/* ==========================================================
+   GND BROADCAST THEME — inspired by modern motorsport TV UI
+   ========================================================== */
+
+body.presentation-mode{
+  background:#050505;
+}
+
+body.presentation-mode main{
+  padding:0;
+  width:100vw;
+  height:100vh;
+}
+
+/* Replace generic top layout with a black broadcast header */
+body.presentation-mode::before{
+  content:"";
+  position:fixed;
+  inset:0 0 auto 0;
+  height:92px;
+  z-index:70;
+  background:
+    linear-gradient(180deg,#050505 0%,#0a0a0a 100%);
+  border-bottom:2px solid #d71920;
+  box-shadow:0 4px 14px rgba(0,0,0,.45);
+  pointer-events:none;
+}
+
+/* GND / LIVE VIDEO mark */
+body.presentation-mode::after{
+  content:"GND  ·  LIVE VIDEO";
+  position:fixed;
+  top:18px;
+  left:22px;
+  z-index:75;
+  color:#fff;
+  font-size:20px;
+  line-height:1;
+  font-weight:900;
+  font-style:italic;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  pointer-events:none;
+}
+
+/* move matrix below header */
+body.presentation-mode .video-grid{
+  position:absolute;
+  top:92px;
+  left:0;
+  width:100vw;
+  height:calc(100vh - 92px);
+  gap:2px;
+  background:#000;
+}
+
+body.presentation-mode .feed-card{
+  height:calc((100vh - 94px)/2);
+}
+
+/* Center heat title in the top broadcast bar */
+body.presentation-mode .heat-description-overlay{
+  display:block !important;
+  position:fixed;
+  top:13px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:90;
+  width:min(760px,60vw);
+  max-width:60vw;
+  padding:0;
+  background:none;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  backdrop-filter:none;
+  color:#fff;
+  text-align:center;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+  pointer-events:none;
+}
+
+body.presentation-mode .heat-description-overlay::before{
+  content:attr(data-heat-label);
+  display:block;
+  margin-bottom:4px;
+  color:#e21a22;
+  font-size:clamp(18px,1.55vw,28px);
+  line-height:1;
+  font-weight:900;
+  font-style:italic;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+}
+
+body.presentation-mode .heat-description-overlay{
+  font-size:clamp(18px,1.5vw,28px);
+  line-height:1.05;
+  font-weight:900;
+  font-style:italic;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+
+/* hide little top-left feed labels in fullscreen */
+body.presentation-mode .feed-label{
+  display:none !important;
+}
+
+/* Lower-third pilot graphics */
+.pilot-overlay{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:12px;
+  z-index:30;
+
+  min-height:48px;
+  display:grid;
+  grid-template-columns:92px minmax(0,1fr) 96px 110px;
+  align-items:stretch;
+
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(10,10,10,.96),rgba(3,3,3,.96));
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:0;
+  clip-path:polygon(1.5% 0,100% 0,98.3% 100%,0 100%);
+  box-shadow:0 8px 18px rgba(0,0,0,.40);
+  backdrop-filter:none;
+}
+
+.pilot-overlay::before,
+.pilot-overlay::after{
+  display:none;
+}
+
+.pilot-category{
+  grid-column:1;
+  min-width:0;
+  padding:0 8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#0a55d4;
+  border:0;
+  clip-path:polygon(12% 0,100% 0,88% 100%,0 100%);
+  color:#fff;
+  font-size:clamp(13px,.9vw,17px);
+  line-height:1;
+  font-weight:900;
+  font-style:italic;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+}
+
+.pilot-main{
+  grid-column:2;
+  min-width:0;
+  padding:0 16px;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:flex-start;
+  gap:10px;
+}
+
+.pilot-name{
+  min-width:0;
+  color:#fff;
+  font-size:clamp(16px,1.2vw,23px);
+  line-height:1;
+  font-weight:900;
+  letter-spacing:-.02em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-shadow:none;
+}
+
+.pilot-meta{
+  grid-column:3;
+  margin:0;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-left:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.015);
+}
+
+.pilot-id{
+  min-height:0;
+  padding:0;
+  color:#fff;
+  font-size:clamp(11px,.76vw,14px);
+  line-height:1;
+  font-weight:800;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.pilot-id::before{
+  content:"";
+  display:none;
+}
+
+/* extra right heat block */
+.pilot-overlay .heat-mini{
+  grid-column:4;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 10px;
+  border-left:1px solid rgba(255,255,255,.10);
+  color:#fff;
+  font-size:clamp(11px,.72vw,14px);
+  line-height:1;
+  font-weight:900;
+  font-style:italic;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+/* PRO / OPEN */
+.pilot-overlay.category-pro .pilot-category{
+  background:linear-gradient(180deg,#1657e8,#0a35a4);
+}
+
+.pilot-overlay.category-open .pilot-category{
+  background:linear-gradient(180deg,#ff251f,#c80000);
+}
+
+.pilot-overlay.category-pro,
+.pilot-overlay.category-open{
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.pilot-overlay.empty{
+  opacity:.48;
+}
+
+.pilot-overlay.empty .pilot-category{
+  background:#444;
+}
+
+/* full screen exact proportions */
+body.presentation-mode .pilot-overlay{
+  left:16px;
+  right:16px;
+  bottom:12px;
+  min-height:52px;
+  grid-template-columns:100px minmax(0,1fr) 110px 118px;
+}
+
+body.presentation-mode .pilot-name{
+  font-size:clamp(17px,1.25vw,24px);
+}
+
+body.presentation-mode .pilot-category{
+  font-size:clamp(14px,.92vw,18px);
+}
+
+/* Hide non-broadcast UI in fullscreen */
+body.presentation-mode .heat-toolbar,
+body.presentation-mode .settings-panel,
+body.presentation-mode .system-status,
+body.presentation-mode .source-panel,
+body.presentation-mode .preview-panel,
+body.presentation-mode .sheet-config,
+body.presentation-mode footer,
+body.presentation-mode header,
+body.presentation-mode .top-strip{
+  display:none !important;
+}
+
+
+/* ==========================================================
+   VIDEO SIGNAL ANALYSIS
+   ========================================================== */
+
+.signal-overlay{
+  position:absolute;
+  inset:0;
+  z-index:26;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+  background:rgba(25,25,25,.22);
+}
+
+.feed-card.no-signal .signal-overlay{
+  display:flex;
+}
+
+.signal-badge{
+  padding:10px 18px;
+  background:rgba(8,8,8,.88);
+  border:1px solid rgba(255,255,255,.14);
+  border-left:5px solid #e21a22;
+  color:#fff;
+  font-size:clamp(18px,1.5vw,30px);
+  line-height:1;
+  font-weight:900;
+  font-style:italic;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  box-shadow:0 8px 22px rgba(0,0,0,.35);
+}
+
+.feed-card.no-signal .pilot-overlay{
+  filter:grayscale(.45);
+  opacity:.78;
+}
+
+.feed-card.no-signal .pilot-category{
+  background:#4a4a4a !important;
+}
+
+.diagnostic-panel{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+}
+
+.diagnostic-title{
+  margin-bottom:8px;
+  color:var(--navy);
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.diagnostic-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+}
+
+.diag-card{
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#f8fbfe;
+  font-size:11px;
+  color:#4d5d6e;
+}
+
+.diag-card strong{
+  display:block;
+  margin-bottom:5px;
+  color:var(--navy);
+  font-size:12px;
+}
+
+.diag-state{
+  margin-top:6px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.diag-state.ok{ color:#128a3a; }
+.diag-state.bad{ color:#b71c1c; }
+
+body.presentation-mode .diagnostic-panel{
+  display:none !important;
+}
+
+
+.feed-card.dnf .signal-overlay{
+  display:flex;
+  background:rgba(15,0,0,.34);
+}
+
+.feed-card.dnf .signal-badge{
+  padding:12px 24px;
+  border-left:6px solid #ff1f2d;
+  background:rgba(110,0,7,.92);
+  color:#fff;
+  font-size:clamp(26px,2.2vw,44px);
+  letter-spacing:.12em;
+}
+
+.feed-card.dnf .pilot-overlay{
+  filter:grayscale(.65);
+  opacity:.72;
+}
+
+.feed-card.dnf .pilot-category{
+  background:#555 !important;
+}
+
+
+/* Show the on-video alert only after the 5-second DNF threshold */
+.feed-card.no-signal .signal-overlay,
+.feed-card.dnf .signal-overlay{
+  display:flex !important;
+}
+
+.feed-card.dnf .signal-badge{
+  padding:12px 24px;
+  border-left:6px solid #ff1f2d;
+  background:rgba(110,0,7,.92);
+  color:#fff;
+  font-size:clamp(26px,2.2vw,44px);
+  letter-spacing:.12em;
+}
+
+
+/* ==========================================================
+   VIDEO RECORDING
+   ========================================================== */
+.recording-panel{
+  margin-top:12px;
+  padding:12px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+.recording-title{
+  margin-bottom:8px;
+  color:var(--navy);
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.recording-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.recording-row button.rec{
+  background:#b71c1c;
+  border-color:#b71c1c;
+  color:#fff;
+}
+.recording-row button.rec.active{
+  background:#e21a22;
+  box-shadow:0 0 0 3px rgba(226,26,34,.14);
+}
+.recording-state{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:40px;
+  padding:0 12px;
+  border-radius:999px;
+  background:#f6f9fc;
+  color:#536474;
+  font-size:11px;
+  font-weight:800;
+}
+.recording-dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#a7b1ba;
+}
+.recording-state.active{
+  color:#a71920;
+  background:#fff0f0;
+}
+.recording-state.active .recording-dot{
+  background:#e21a22;
+  box-shadow:0 0 0 4px rgba(226,26,34,.12);
+  animation:recPulse 1s infinite;
+}
+@keyframes recPulse{
+  0%,100%{opacity:1}
+  50%{opacity:.35}
+}
+.recording-info{
+  margin-top:8px;
+  color:#6d7b88;
+  font-size:11px;
+}
+body.presentation-mode .recording-panel{
+  display:none !important;
+}
+
+
+#autoRecordBtn.armed{
+  background:#0b4f88;
+  border-color:#0b4f88;
+  color:#fff;
+  box-shadow:0 0 0 3px rgba(11,79,136,.12);
+}
+
+@media(max-width:900px){
+  .diagnostic-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:900px){
+  .header-inner{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .source-panel select{
+    min-width:180px;
+    width:100%;
+  }
+}
+
+/* Fullscreen lower-third layout fix */
+.pilot-main{
+  overflow:hidden;
+}
+.pilot-name{
+  width:100%;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.pilot-meta{
+  min-width:0;
+  overflow:hidden;
+}
+.pilot-id{
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+body.presentation-mode .pilot-overlay{
+  grid-template-columns:100px minmax(0,1fr) 112px 118px;
+}
+
+/* Live timing remains visible in the video matrix and fullscreen. */
+.rh-timing{position:absolute;right:10px;top:10px;z-index:35;pointer-events:none;background:rgba(3,13,25,.84);border:1px solid rgba(100,190,255,.55);border-radius:8px;padding:7px 10px;color:#fff;min-width:116px;font:700 clamp(11px,1.05vw,18px)/1.45 Arial,sans-serif;font-variant-numeric:tabular-nums;white-space:pre-line;box-shadow:0 3px 12px #0005}
+.rh-seat{display:block;font-size:9px;letter-spacing:.08em;color:#8fceff}
+.rh-stale{border-color:#999}.rh-stale .rh-seat::after{content:' · OFFLINE';color:#ffc477}
+.rh-help{font-size:12px;line-height:1.5;color:#526273}
+#rh_liveState{font-size:12px;color:#526273;max-width:280px}
+#rh_status.error{color:#b71c1c}#rh_status.ok{color:#1d8f43}
+#rh_rawLog{max-height:280px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1520;color:#dce8f2;padding:12px;font-size:11px}
+.rh-config summary{cursor:pointer;margin-bottom:10px}
+
+/* Timing row integrated into the pilot lower third. */
+.pilot-overlay, body.presentation-mode .pilot-overlay{
+  grid-template-columns:clamp(48px,5vw,92px) minmax(0,1fr) clamp(55px,6vw,110px) clamp(60px,6vw,118px);
+  grid-template-rows:minmax(36px,auto) auto;
+  clip-path:none;border-radius:4px;overflow:hidden;
+}
+.pilot-overlay .pilot-category{grid-row:1 / 3;clip-path:none;min-width:0;padding:0 6px}
+.pilot-overlay .pilot-main{padding:8px 10px}
+.pilot-overlay .pilot-meta,.pilot-overlay .heat-mini{grid-row:1;padding:0 6px}
+.pilot-overlay .rh-timing{
+  position:static;grid-column:2 / -1;grid-row:2;display:flex;align-items:center;gap:10px;
+  min-width:0;padding:6px 10px;margin:0;border:0;border-top:1px solid #ffffff26;
+  border-radius:0;box-shadow:none;background:rgba(0,0,0,.55);white-space:normal;
+  font:700 clamp(10px,.9vw,16px)/1.2 Arial,sans-serif;
+}
+.rh-values{display:grid;grid-template-columns:.65fr 1fr 1fr;gap:10px;flex:1;min-width:0;font-variant-numeric:tabular-nums}
+.rh-values span{display:flex;align-items:baseline;gap:6px;color:#b5c4d3;font-size:.65em;letter-spacing:.05em;white-space:nowrap}
+.rh-values b{color:white;font-size:1.55em;letter-spacing:0}
+.rh-values span:last-child b{color:#8fe6ba}
+.pilot-overlay .rh-seat{font-size:9px;white-space:nowrap;color:#b5c4d3}
+.pilot-overlay .rh-stale .rh-seat::after{content:' · OFF';font-size:8px}
+@media(max-width:650px){
+  .pilot-overlay,body.presentation-mode .pilot-overlay{left:4px;right:4px;bottom:4px;grid-template-columns:36px minmax(0,1fr) 46px}
+  .pilot-overlay .heat-mini{display:none}
+  .pilot-overlay .pilot-name{font-size:12px}
+  .pilot-overlay .pilot-category{font-size:9px}
+  .pilot-overlay .pilot-id{font-size:8px}
+  .pilot-overlay .rh-timing{gap:4px;padding:5px 6px}
+  .rh-values{gap:4px}.rh-values span{flex-direction:column;gap:3px}
+  .pilot-overlay .rh-seat{display:none}
+}
+
+.rh-values.rh-qualification{grid-template-columns:.45fr .5fr 1.1fr 1.35fr;gap:6px 12px;align-items:center}
+.rh-qualification span{flex-direction:column;align-items:flex-start;gap:3px}
+.rh-qualification .rh-best3{grid-column:4;grid-row:1 / 3;align-self:stretch;justify-content:center;border-left:1px solid #ffffff30;padding-left:12px}
+.rh-qualification .rh-best3 b{color:#8fe6ba;font-size:1.9em}
+.rh-best3 small{font-size:9px;letter-spacing:0;color:#b5c4d3}
+.rh-qualification .rh-delta{grid-column:2 / 4}
+.rh-qualification .rh-fastest{grid-column:1 / -1;flex-direction:row;align-items:center;color:#f0ccff;background:#7626b5;padding:4px 7px;border-radius:3px;gap:7px}
+.rh-qualification .rh-fastest[hidden]{display:none}
+.rh-qualification .rh-fastest b{color:white}
+.rh-qualification .rh-record b{color:#8fe6ba}
+.pilot-overlay .rh-timing{align-items:flex-start}
+@media(max-width:650px){.rh-values.rh-qualification{gap:5px}.rh-qualification .rh-best3{padding-left:5px}.rh-best3 small{font-size:7px}.rh-qualification .rh-fastest{font-size:7px}}
+
+/* Compact broadcast strip: fixed best-three, rotating secondary information. */
+.pilot-overlay,body.presentation-mode .pilot-overlay{
+ min-height:0;grid-template-rows:27px 26px;
+ grid-template-columns:52px minmax(0,1fr) 68px 72px;
+ left:10px;right:10px;bottom:8px;
+}
+.pilot-overlay .pilot-main,body.presentation-mode .pilot-main{padding:3px 9px}
+.pilot-overlay .pilot-name,body.presentation-mode .pilot-name{font-size:clamp(12px,1vw,19px);line-height:1}
+.pilot-overlay .pilot-category,body.presentation-mode .pilot-category{min-width:0;font-size:11px;padding:0 4px}
+.pilot-overlay .pilot-id,.pilot-overlay .heat-mini{font-size:10px}
+.pilot-overlay .rh-timing{padding:0 8px;gap:0;align-items:center;overflow:hidden}
+.pilot-overlay .rh-seat{display:none}
+.rh-values.rh-qualification{position:relative;display:block;height:25px;width:100%;font-size:13px;overflow:hidden}
+.rh-values.rh-qualification>span{position:absolute;top:0;height:25px;display:flex;flex-direction:row;align-items:center;gap:6px;white-space:nowrap;margin:0;padding:0;border:0;line-height:1}
+.rh-values.rh-qualification>span b{font-size:12px}
+.rh-values.rh-qualification>span:nth-child(1){left:0;width:46px;font-size:8px}
+.rh-values.rh-qualification>span:nth-child(2),
+.rh-values.rh-qualification>span:nth-child(3),
+.rh-values.rh-qualification>span:nth-child(5),
+.rh-values.rh-qualification>span:nth-child(6){left:50px;right:160px;font-size:8px;opacity:0;transform:translateY(110%);animation:rh-slide 16s infinite}
+.rh-values.rh-qualification>span:nth-child(3){animation-delay:-12s}
+.rh-values.rh-qualification>span:nth-child(5){animation-delay:-8s}
+.rh-values.rh-qualification>span:nth-child(6){animation-delay:-4s}
+.rh-values.rh-qualification>.rh-best3{left:auto;right:25px;width:128px;justify-content:flex-end;gap:5px;font-size:8px;background:rgba(0,0,0,.3);padding:0 5px}
+.rh-values.rh-qualification>.rh-best3 b{font-size:13px}
+.rh-best3 small{display:none}
+.rh-values.rh-qualification>.rh-fastest{right:0;left:auto;width:23px;justify-content:center;background:#822dcc;border-radius:3px;color:#fff;font-size:0;padding:0}
+.rh-values.rh-qualification>.rh-fastest b{display:none}
+.rh-values.rh-qualification>.rh-fastest[hidden]{display:none}
+.rh-fastest svg{width:19px;height:17px;flex-shrink:0}
+@keyframes rh-slide{
+ 0%,21%{opacity:1;transform:translateY(0)}
+ 25%,96%{opacity:0;transform:translateY(-110%)}
+ 97%,100%{opacity:0;transform:translateY(110%)}
+}
+@media(prefers-reduced-motion:reduce){
+ .rh-values.rh-qualification>span:nth-child(2),.rh-values.rh-qualification>span:nth-child(3),.rh-values.rh-qualification>span:nth-child(5),.rh-values.rh-qualification>span:nth-child(6){animation:none}
+ .rh-values.rh-qualification>span:nth-child(3){opacity:1;transform:none}
+}
+@media(max-width:650px){
+ .pilot-overlay,body.presentation-mode .pilot-overlay{left:4px;right:4px;bottom:4px;grid-template-columns:32px minmax(0,1fr) 45px;grid-template-rows:23px 24px}
+ .pilot-overlay .pilot-category,body.presentation-mode .pilot-category{font-size:8px}
+ .pilot-overlay .pilot-name,body.presentation-mode .pilot-name{font-size:10px}
+ .pilot-overlay .rh-timing{grid-column:1 / -1;padding:0 4px}
+ .pilot-overlay .pilot-category{grid-row:1}
+ .rh-values.rh-qualification>span:nth-child(1){width:28px;font-size:7px;gap:2px}
+ .rh-values.rh-qualification>span:nth-child(2),.rh-values.rh-qualification>span:nth-child(3),.rh-values.rh-qualification>span:nth-child(5),.rh-values.rh-qualification>span:nth-child(6){left:30px;right:105px;font-size:6px;gap:3px}
+ .rh-values.rh-qualification>span b{font-size:9px}
+ .rh-values.rh-qualification>.rh-best3{right:19px;width:83px;font-size:6px;gap:3px;padding:0 2px}
+ .rh-values.rh-qualification>.rh-best3 b{font-size:10px}
+ .rh-values.rh-qualification>.rh-fastest{width:18px}
+}
+
+/* Fixed personal best lap alongside best three; purple fastest-lap dot. */
+.rh-values.rh-qualification>.rh-single{right:160px;width:112px;justify-content:flex-end;font-size:8px;gap:5px;background:rgba(0,0,0,.3);padding:0 5px}
+.rh-values.rh-qualification>.rh-single b{color:white;font-size:12px}
+.rh-values.rh-qualification>span:nth-child(2),.rh-values.rh-qualification>span:nth-child(3),.rh-values.rh-qualification>span:nth-child(5),.rh-values.rh-qualification>span:nth-child(6){right:280px}
+.rh-values.rh-qualification>.rh-fastest{width:12px;height:12px;top:6px;right:3px;border-radius:50%;background:#b34dff;box-shadow:0 0 7px #b34dff88;font-size:0}
+@media(max-width:900px){
+ .rh-values.rh-qualification>.rh-single{right:118px;width:83px;font-size:7px;padding:0 2px;gap:3px}
+ .rh-values.rh-qualification>.rh-single b{font-size:10px}
+ .rh-values.rh-qualification>.rh-best3{right:18px;width:98px;font-size:7px;gap:3px;padding:0 2px}
+ .rh-values.rh-qualification>.rh-best3 b{font-size:10px}
+ .rh-values.rh-qualification>span:nth-child(2),.rh-values.rh-qualification>span:nth-child(3),.rh-values.rh-qualification>span:nth-child(5),.rh-values.rh-qualification>span:nth-child(6){right:205px;font-size:7px;gap:3px}
+}
+@media(max-width:650px){
+ .rh-values.rh-qualification>.rh-single{right:92px;width:70px;font-size:6px;gap:2px}
+ .rh-values.rh-qualification>.rh-single b{font-size:9px}
+ .rh-values.rh-qualification>.rh-best3{right:13px;width:77px;font-size:6px}
+ .rh-values.rh-qualification>.rh-best3 b{font-size:9px}
+ .rh-values.rh-qualification>.rh-fastest{width:9px;height:9px;top:8px;right:0}
+ .rh-values.rh-qualification>span:nth-child(2),.rh-values.rh-qualification>span:nth-child(3),.rh-values.rh-qualification>span:nth-child(5),.rh-values.rh-qualification>span:nth-child(6){right:166px;font-size:6px}
+}
+
+/* Settings workspace, scoped to preserve the broadcast view. */
+#settingsPanel{background:#edf2f7;border:1px solid #d7e1ec;border-radius:20px;padding:22px;margin-bottom:22px;color:#152b43}
+.setup-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}
+.setup-eyebrow{font-size:10px;font-weight:900;letter-spacing:.18em;color:#46789d}
+.setup-heading h2{font-size:25px;letter-spacing:-.035em;margin:6px 0}
+.setup-heading p{font-size:13px;color:#62768b;margin:0;line-height:1.5}
+.setup-tag{font-size:9px;letter-spacing:.12em;font-weight:800;background:#dfebf5;color:#3c678b;padding:8px 10px;border-radius:6px}
+.setup-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.setup-card{min-width:0;background:white;border:1px solid #dce5ee;border-radius:14px;padding:20px;box-shadow:0 3px 12px #14355406}
+.setup-card-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px}
+.setup-number{display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex-shrink:0;background:#eaf3fb;border:1px solid #d4e7f5;color:#005b96;font:800 12px Arial;border-radius:9px}
+.setup-card h3{font-size:16px;margin:1px 0 5px;letter-spacing:-.02em}
+.setup-card-head p{font-size:12px;line-height:1.5;margin:0;color:#708195}
+#settingsPanel .source-panel,#settingsPanel .sheet-config,#settingsPanel .recording-panel,#settingsPanel .preview-panel,#settingsPanel .diagnostic-panel{padding:0;margin:0;border:0;box-shadow:none;background:transparent}
+#settingsPanel .sheet-config-title,#settingsPanel .recording-title{display:none}
+#settingsPanel button{font-size:10px;letter-spacing:.02em;border-radius:8px;min-height:37px;padding:0 12px;transition:background .15s,box-shadow .15s}
+#settingsPanel button:hover{box-shadow:0 2px 7px #173c5920}
+#settingsPanel button:focus-visible,#settingsPanel input:focus-visible,#settingsPanel select:focus-visible,#settingsPanel summary:focus-visible{outline:3px solid #63b2ee;outline-offset:3px}
+#settingsPanel input,#settingsPanel select{width:100%;min-width:0;flex:1 1 100%;border:1px solid #cfdce8;background:#f8fafc;border-radius:8px;min-height:42px;padding:0 12px;color:#213b55;font-size:12px}
+#settingsPanel .sheet-config-row,#settingsPanel .source-panel,#settingsPanel .recording-row{gap:8px}
+#settingsPanel .system-status{background:#e4edf5;border:0;border-left:3px solid #488abc;border-radius:7px;box-shadow:none;padding:11px 14px;font-size:12px;margin:0 0 16px;overflow-wrap:anywhere}
+#settingsPanel .system-status.error{background:#fff0ef;border-left-color:#c13b3b;color:#942222}
+#rh_status{font-size:12px;background:#f2f5f8;border-radius:7px;padding:10px 12px;overflow-wrap:anywhere}
+#rh_status.ok{background:#eaf7ee}#rh_status.error{background:#fff0ef}
+#settingsPanel details{border-top:1px solid #e6edf4;margin-top:14px;padding-top:12px}
+#settingsPanel summary{cursor:pointer;color:#48647f;font-size:11px;font-weight:800;padding:3px 0;list-style-position:inside}
+#settingsPanel details[open]>summary{margin-bottom:12px}
+#settingsPanel .preview-wrap{width:100%;margin-bottom:14px}
+#settingsPanel .diagnostic-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#settingsPanel .recording-info,#settingsPanel .rh-help{font-size:11px;line-height:1.65;color:#748497}
+#settingsPanel .recording-state{border-radius:7px;font-size:10px}
+@media(max-width:850px){.setup-grid{grid-template-columns:1fr}#settingsPanel{padding:14px}.setup-card{padding:16px}.setup-tag{display:none}}
+
+#signalPlaceholder{position:absolute;inset:0;z-index:160;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(135deg,#c6efff 0%,#79cef3 55%,#48afe1 100%);color:#064573;overflow:hidden}
+#signalPlaceholder[hidden]{display:none}
+#signalPlaceholder>div{padding:24px}
+#signalPlaceholder span{font-size:clamp(12px,1.5vw,24px);font-weight:900;letter-spacing:.24em}
+#signalPlaceholder h2{font-size:clamp(22px,4vw,64px);letter-spacing:-.035em;margin:16px 0}
+#signalPlaceholder p{font-size:clamp(12px,1.4vw,22px);margin:0;color:#22668d}
+body.all-feeds-lost .heat-description-overlay{visibility:hidden}
+
+#signalPlaceholder{background:radial-gradient(ellipse at 90% 0%,#076aa4 0%,transparent 55%),linear-gradient(135deg,#061b32,#003f73);color:white;text-align:left;isolation:isolate}
+#signalPlaceholder::before{content:'';position:absolute;inset:-60%;background:repeating-linear-gradient(130deg,transparent 0 130px,#60ceff08 131px 133px,transparent 134px 260px);transform:rotate(-8deg);z-index:-1}
+#signalPlaceholder .waiting-screen{width:100%;height:100%;padding:clamp(16px,3.5vw,64px);display:flex;flex-direction:column;justify-content:space-between;gap:clamp(10px,2vw,28px);box-sizing:border-box}
+#signalPlaceholder span{font-size:inherit;letter-spacing:inherit;font-weight:inherit}
+.waiting-header{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.waiting-logo{background:white;padding:10px 18px;border-radius:3px;box-shadow:8px 8px 0 #39b7f5}
+.waiting-logo .gnd-wait-logo{display:block;color:#050505;font:900 clamp(22px,4vw,42px)/1 Consolas,"Courier New",monospace;letter-spacing:-.08em}
+#signalPlaceholder .waiting-live{font-size:clamp(8px,1vw,15px);font-weight:800;letter-spacing:.16em;color:#a7dcfa}
+#signalPlaceholder .waiting-eyebrow{font-size:clamp(11px,1.1vw,19px);font-weight:900;color:#57caff;letter-spacing:.15em}
+#signalPlaceholder h2{color:white;font-size:clamp(22px,3.5vw,60px);line-height:1.06;letter-spacing:-.035em;margin:8px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#signalPlaceholder .waiting-heading p{color:#99bed9;font-size:clamp(10px,1.1vw,18px)}
+.waiting-roster{display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,1.2vw,20px)}
+.waiting-pilot{display:flex;align-items:center;gap:clamp(8px,1.1vw,18px);min-width:0;padding:clamp(10px,1.5vw,24px);border:1px solid #94d6ff30;border-left:4px solid #30baff;background:linear-gradient(100deg,#0d4e7ec9,#092943c9);border-radius:4px}
+.waiting-slot{font-size:clamp(16px,2vw,32px);font-weight:900;font-style:italic;color:#52c9ff;flex-shrink:0}
+.waiting-identity{flex:1;min-width:0}
+.waiting-identity h3{font-size:clamp(12px,1.6vw,26px);text-transform:uppercase;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;margin:0 0 5px;letter-spacing:-.02em;color:white}
+#signalPlaceholder .waiting-identity p{font-size:clamp(8px,.85vw,13px);color:#9cc0da}
+#signalPlaceholder .waiting-category{font-size:clamp(8px,.8vw,13px);padding:5px 8px;border-radius:3px;background:#1277b7;font-weight:900;letter-spacing:.04em}
+.waiting-open{border-left-color:#ff515b}.waiting-open .waiting-slot{color:#ff848c}#signalPlaceholder .waiting-open .waiting-category{background:#c92335}
+.waiting-empty{opacity:.5}
+.waiting-footer{display:flex;align-items:center;gap:10px;color:#a5c4da;font-size:clamp(7px,.8vw,12px);font-weight:700;letter-spacing:.1em}
+.waiting-dot{width:7px;height:7px;background:#52c9ff;border-radius:50%;box-shadow:0 0 10px #52c9ff;flex-shrink:0}.waiting-line{height:1px;flex:1;background:#7ac7ee30}
+@media(max-width:650px){#signalPlaceholder .waiting-screen{padding:12px;gap:9px}.waiting-logo{padding:4px 8px;box-shadow:4px 4px 0 #39b7f5}.waiting-logo .gnd-wait-logo{font-size:22px}#signalPlaceholder h2{font-size:18px;margin:3px 0}.waiting-heading p,.waiting-live,.waiting-footer>span:last-child{display:none}.waiting-pilot{padding:8px;gap:6px}.waiting-identity h3{font-size:10px}.waiting-slot{font-size:14px}#signalPlaceholder .waiting-category{font-size:7px;padding:3px}.waiting-footer{font-size:6px}}
+#fallbackHd{position:absolute;inset:0;z-index:170;background:#000}#fallbackHd[hidden]{display:none}#fallbackVideo{width:100%;height:100%;object-fit:contain;background:#000}#fallbackHd>span{position:absolute;bottom:18px;left:18px;background:#003f73dc;color:white;padding:9px 14px;border-left:3px solid #52c9ff;font:800 12px Arial;letter-spacing:.08em}</style>
+<link rel="stylesheet" href="racecontrol-theme.css">
+<script>(()=>{const map={f9uRaceTargetLaps:"gndRaceTargetLaps",f9uHeatSheetId:"gndHeatSheetId",f9uRhDiagServer:"gndRhDiagServer",f9uSingleJudgeSheetId:"gndSingleJudgeSheetId",f9uSingleJudgeDecisions:"gndSingleJudgeDecisions"};for(const [oldKey,newKey] of Object.entries(map)){if(localStorage.getItem(newKey)===null){const value=localStorage.getItem(oldKey);if(value!==null)localStorage.setItem(newKey,value)}}})();</script>
+</head>
+
+<body>
+
+<div class="top-strip"></div>
+
+<header>
+  <div class="header-inner">
+
+    <div class="brand">
+      
+
+      <div class="brand-title">
+        <small>C:\GND\RACECONTROL</small>
+        <h1>GND Live Video</h1>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="popoutFeedsBtn" class="primary" type="button" title="Apri solo i quattro feed in una seconda finestra">Apri feed separati</button>
+      <button id="settingsBtn">Impostazioni</button>
+      <button id="fullscreenBtn">Fullscreen</button>
+    </div>
+
+  </div>
+</header>
+
+<main>
+
+  <section id="settingsPanel" class="settings-panel">
+ <div class="setup-heading"><div><span class="setup-eyebrow">GND / CONTROL ROOM</span><h2>Impostazioni Live</h2><p>Prepara le sorgenti e le connessioni prima della gara.</p></div><span class="setup-tag">CONFIGURAZIONE</span></div>
+ <div id="systemStatus" class="system-status">
+      <strong>Stato:</strong> abilita la sorgente video.
+    </div>
+ <div class="setup-grid">
+
+ <section class="setup-card"><div class="setup-card-head"><span class="setup-number">01</span><div><h3>Sorgente video</h3><p>Seleziona la capture card e avvia i quattro feed.</p></div></div><div class="source-panel">
+      <select id="cameraSelect">
+        <option value="">Sorgente video...</option>
+      </select>
+
+      <button id="enableBtn" class="primary">Abilita Webcam</button>
+      <button id="startBtn">Avvia Video</button>
+      <button id="stopBtn">Stop</button>
+      <button id="refreshBtn">Aggiorna Sorgenti</button>
+    </div><details class="setup-notes"><summary>Anteprima e diagnostica segnale</summary><div class="preview-panel">
+      <div class="preview-title">Preview segnale completo</div>
+      <div class="preview-wrap">
+        <video id="previewVideo" autoplay playsinline muted></video>
+      </div>
+    </div><div class="diagnostic-panel">
+      <div class="diagnostic-title">Diagnostica Segnale Video</div>
+      <div class="diagnostic-grid">
+        <div class="diag-card" data-diag="0">
+          <strong>P1</strong>
+          <div class="diag-values">Lum -- · Sat -- · Var --</div>
+          <div class="diag-state">In attesa</div>
+        </div>
+        <div class="diag-card" data-diag="1">
+          <strong>P2</strong>
+          <div class="diag-values">Lum -- · Sat -- · Var --</div>
+          <div class="diag-state">In attesa</div>
+        </div>
+        <div class="diag-card" data-diag="2">
+          <strong>P3</strong>
+          <div class="diag-values">Lum -- · Sat -- · Var --</div>
+          <div class="diag-state">In attesa</div>
+        </div>
+        <div class="diag-card" data-diag="3">
+          <strong>P4</strong>
+          <div class="diag-values">Lum -- · Sat -- · Var --</div>
+          <div class="diag-state">In attesa</div>
+        </div>
+      </div>
+    </div></details></section>
+ <section class="setup-card"><div class="setup-card-head"><span class="setup-number">02</span><div><h3>Cronometraggio</h3><p>Collega RotorHazard per ricevere i tempi in diretta.</p></div></div><div class="sheet-config rh-config">
+      <div class="sheet-config-title">RotorHazard · Tempi live</div>
+      <div class="sheet-config-row">
+        <input id="rh_serverInput" aria-label="Indirizzo server RotorHazard" placeholder="http://192.168.1.227">
+        <button id="rh_connectBtn" class="primary">Connetti timer</button>
+        <button id="rh_disconnectBtn">Disconnetti timer</button>
+        <button id="rh_requestBtn">Richiedi tempi</button>
+      </div>
+      <p id="rh_status" role="status">Non connesso.</p>
+      <details class="setup-notes"><summary>Associazione nodi e regole di qualifica</summary><p class="rh-help">P1 → Nodo 1 · P2 → Nodo 2 · P3 → Nodo 3 · P4 → Nodo 4.<br>Seleziona la stessa heat sul foglio e su RotorHazard. I tempi seguono i nodi della gara attuale; il cambio heat qui aggiorna i nomi.<br>BEST 3 = migliore somma di 3 giri consecutivi. Giri invalidi, eliminati, tardivi o numeri mancanti interrompono la sequenza. POS confronta solo i quattro nodi mostrati, con parità al millisecondo. Cerchio viola = miglior giro singolo tra i quattro, anche a pari merito. La registrazione salva il video sorgente senza queste sovrimpressioni.</p></details>
+      <details><summary>Diagnostica timer</summary>
+        <button id="rh_clearBtn">Pulisci log</button><button id="rh_copyBtn">Copia log</button>
+        <pre id="rh_rawLog">In attesa di connessione...</pre>
+      </details>
+    </div></section>
+ <section class="setup-card"><div class="setup-card-head"><span class="setup-number">03</span><div><h3>Heat e piloti</h3><p>Carica nomi, categorie e batterie dal foglio gara.</p></div></div><div class="sheet-config">
+      <div class="sheet-config-title">Google Sheet · Heat</div>
+      <div style="margin-bottom:8px;color:#6d7b88;font-size:11px;font-weight:700;">
+        A=Heat (es. 12 oppure F46=Eliminatorie) · B=Slot P1-P4 · C=Nome e Cognome · D=ID · E=Categoria · F=Descrizione Heat
+      </div>
+      <div class="sheet-config-row">
+        <input id="heatSheetInput"
+               type="text"
+               placeholder="Incolla URL o ID del Google Sheet">
+        <button id="loadHeatsBtn" class="primary">Carica Heat</button>
+      </div>
+    </div></section>
+ <section class="setup-card"><div class="setup-card-head"><span class="setup-number">04</span><div><h3>Registrazione</h3><p>Salva il video della sessione o attiva la registrazione automatica.</p></div></div><div class="recording-panel">
+      <div class="recording-title">Registrazione Feed Video 2×2</div>
+      <div class="recording-row">
+        <button id="recordStartBtn" class="rec">REC</button>
+        <button id="recordStopBtn">STOP</button>
+        <button id="autoRecordBtn">AUTO REC</button>
+        <div id="recordingState" class="recording-state">
+          <span class="recording-dot"></span>
+          <span id="recordingStateText">Pronto</span>
+          <span id="recordingDuration">00:00</span>
+        </div>
+      </div>
+      <div class="recording-info">
+        Registra l'intero ingresso video composito 2×2 della capture card.
+        AUTO REC avvia la registrazione quando almeno un feed video è presente
+        e la interrompe automaticamente quando tutti i feed sono assenti.
+      </div>
+    </div></section>
+<section class="setup-card"><div class="setup-card-head"><span class="setup-number">05</span><div><h3>Schermata senza segnale</h3><p>Dopo 5 secondi senza feed pilota, mostra la sorgente scelta.</p></div></div>
+<div class="sheet-config-row"><label for="fallbackMode">Sorgente di attesa</label><select id="fallbackMode"><option value="placeholder">Grafica GND e piloti</option><option value="hd">Camera HD</option></select>
+<label for="fallbackCamera">Camera USB / HDMI</label><select id="fallbackCamera"><option value="">Seleziona camera HD</option></select><button id="fallbackRefresh">Aggiorna camere</button><button id="fallbackStart" class="primary">Avvia HD</button><button id="fallbackStop">Stop HD</button></div>
+<p id="fallbackStatus" role="status" class="rh-help">HD non attiva. Grafica GND disponibile.</p><p class="recording-info">Seleziona un ingresso diverso dalla capture card FPV. Se la HD non è pronta, appare la grafica GND. Il ritorno ai feed è automatico appena torna un segnale. La registrazione salva solo il video sorgente FPV.</p></section>
+ <section class="setup-card"><div class="setup-card-head"><span class="setup-number">06</span><div><h3>Progressione gara</h3><p>Definisci quanti giri completano il 100% della linea.</p></div></div><div class="sheet-config"><div class="sheet-config-title">Giri obiettivo</div><div class="sheet-config-row"><label for="targetLapsInput">Giri per completare la gara</label><input id="targetLapsInput" type="number" min="1" max="100" step="1" value="3" inputmode="numeric"></div><p class="rh-help">Valore iniziale: 3 giri. Puoi impostare da 1 a 100; la progressione considera i giri validi ricevuti da RotorHazard.</p></div></section></div>
+ </section>
+
+  <video id="sourceVideo" autoplay playsinline muted style="display:none"></video>
+
+  <section class="heat-toolbar">
+    <div class="heat-toolbar-left">
+      <button id="prevHeatBtn">← Heat</button>
+      <div id="heatCurrent" class="heat-current">Heat --</div>
+      <button id="nextHeatBtn">Heat →</button>
+    </div>
+
+    <div class="heat-toolbar-right">
+      <span id="rh_liveState" role="status">Timer non connesso</span>
+      <button id="reloadHeatsBtn">Aggiorna Heat</button>
+    </div>
+  </section>
+
+  <section class="video-grid">
+<div id="fallbackHd" hidden><video id="fallbackVideo" autoplay playsinline muted></video><span>GND LIVE · TRACCIATO</span></div>
+    <div id="signalPlaceholder" hidden role="status" aria-label="Attesa video e piloti della heat corrente"><div class="waiting-screen"><div class="waiting-header"><div class="waiting-logo"><span class="gnd-wait-logo">GND</span></div><span class="waiting-live">GND · LIVE TIMING</span></div><div class="waiting-heading"><span class="waiting-eyebrow" id="waitingHeat">HEAT —</span><h2 id="waitingDescription">Pronti a volare.</h2><p>La prossima azione è in pista.</p></div><div class="waiting-roster"><article class="waiting-pilot" id="waitingPilot0"><div class="waiting-slot">P1</div><div class="waiting-identity"><h3 data-wait-name>Pilota 1</h3><p data-wait-id>ID —</p></div><span class="waiting-category" data-wait-category>—</span></article><article class="waiting-pilot" id="waitingPilot1"><div class="waiting-slot">P2</div><div class="waiting-identity"><h3 data-wait-name>Pilota 2</h3><p data-wait-id>ID —</p></div><span class="waiting-category" data-wait-category>—</span></article><article class="waiting-pilot" id="waitingPilot2"><div class="waiting-slot">P3</div><div class="waiting-identity"><h3 data-wait-name>Pilota 3</h3><p data-wait-id>ID —</p></div><span class="waiting-category" data-wait-category>—</span></article><article class="waiting-pilot" id="waitingPilot3"><div class="waiting-slot">P4</div><div class="waiting-identity"><h3 data-wait-name>Pilota 4</h3><p data-wait-id>ID —</p></div><span class="waiting-category" data-wait-category>—</span></article></div><div class="waiting-footer"><span class="waiting-dot"></span> IN ATTESA DEL SEGNALE VIDEO <span class="waiting-line"></span><span>FPV RACING · ITALIA</span></div></div></div>
+    <div id="heatDescriptionOverlay" class="heat-description-overlay">Descrizione Heat</div>
+
+
+    <article class="feed-card feed-1">
+      <div class="feed-label">Pilota 1</div>
+      <div class="signal-overlay">
+        <div class="signal-badge">NO SIGNAL</div>
+      </div>
+      <div class="pilot-overlay empty" data-pilot-slot="1">
+        <div class="pilot-category">--</div>
+        <div class="pilot-main">
+          <div class="pilot-name"></div>
+        </div>
+        <div class="pilot-meta">
+          <span class="pilot-id">ID: --</span>
+        </div>
+        <div class="heat-mini">HEAT --</div>
+        <div class="rh-timing rh-stale"><span class="rh-seat">P1</span><div id="rh_node0" class="rh-values rh-qualification">
+ <span>POS <b data-value="rank">--</b></span><span>GIRI <b data-value="laps">--</b></span><span>LAST <b data-value="last">--</b></span>
+ <span class="rh-best3">BEST 3 <b data-value="best3">--</b><small data-value="range">In attesa del terzetto</small></span>
+ <span>ULTIMI 3 <b data-value="last3">--</b></span><span class="rh-delta">Δ PERSONALE <b data-value="delta">--</b></span>
+ <span class="rh-fastest" hidden> GIRO PIÙ VELOCE <b data-value="fastest"></b></span><span class="rh-single">BEST <b data-value="single">--</b></span>
+ </div></div>
+      </div>
+      <div class="race-progress" data-progress-slot="0" role="group" aria-label="Progressione pilota"><div class="race-progress-readout"><span class="race-progress-percent" data-progress-percent>0%</span><span class="race-progress-laps" data-progress-laps>0 / 3 GIRI</span></div><div class="race-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span class="race-progress-fill" data-progress-fill></span><i class="race-progress-marker" data-progress-marker></i></div></div><div class="feed-view">
+        <canvas id="canvas1"></canvas>
+        <div class="placeholder">Nessun segnale</div>
+      </div>
+    </article>
+
+    <article class="feed-card feed-2">
+      <div class="feed-label">Pilota 2</div>
+      <div class="signal-overlay">
+        <div class="signal-badge">NO SIGNAL</div>
+      </div>
+      <div class="pilot-overlay empty" data-pilot-slot="2">
+        <div class="pilot-category">--</div>
+        <div class="pilot-main">
+          <div class="pilot-name"></div>
+        </div>
+        <div class="pilot-meta">
+          <span class="pilot-id">ID: --</span>
+        </div>
+        <div class="heat-mini">HEAT --</div>
+        <div class="rh-timing rh-stale"><span class="rh-seat">P2</span><div id="rh_node1" class="rh-values rh-qualification">
+ <span>POS <b data-value="rank">--</b></span><span>GIRI <b data-value="laps">--</b></span><span>LAST <b data-value="last">--</b></span>
+ <span class="rh-best3">BEST 3 <b data-value="best3">--</b><small data-value="range">In attesa del terzetto</small></span>
+ <span>ULTIMI 3 <b data-value="last3">--</b></span><span class="rh-delta">Δ PERSONALE <b data-value="delta">--</b></span>
+ <span class="rh-fastest" hidden> GIRO PIÙ VELOCE <b data-value="fastest"></b></span><span class="rh-single">BEST <b data-value="single">--</b></span>
+ </div></div>
+      </div>
+      <div class="race-progress" data-progress-slot="1" role="group" aria-label="Progressione pilota"><div class="race-progress-readout"><span class="race-progress-percent" data-progress-percent>0%</span><span class="race-progress-laps" data-progress-laps>0 / 3 GIRI</span></div><div class="race-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span class="race-progress-fill" data-progress-fill></span><i class="race-progress-marker" data-progress-marker></i></div></div><div class="feed-view">
+        <canvas id="canvas2"></canvas>
+        <div class="placeholder">Nessun segnale</div>
+      </div>
+    </article>
+
+    <article class="feed-card feed-3">
+      <div class="feed-label">Pilota 3</div>
+      <div class="signal-overlay">
+        <div class="signal-badge">NO SIGNAL</div>
+      </div>
+      <div class="pilot-overlay empty" data-pilot-slot="3">
+        <div class="pilot-category">--</div>
+        <div class="pilot-main">
+          <div class="pilot-name"></div>
+        </div>
+        <div class="pilot-meta">
+          <span class="pilot-id">ID: --</span>
+        </div>
+        <div class="heat-mini">HEAT --</div>
+        <div class="rh-timing rh-stale"><span class="rh-seat">P3</span><div id="rh_node2" class="rh-values rh-qualification">
+ <span>POS <b data-value="rank">--</b></span><span>GIRI <b data-value="laps">--</b></span><span>LAST <b data-value="last">--</b></span>
+ <span class="rh-best3">BEST 3 <b data-value="best3">--</b><small data-value="range">In attesa del terzetto</small></span>
+ <span>ULTIMI 3 <b data-value="last3">--</b></span><span class="rh-delta">Δ PERSONALE <b data-value="delta">--</b></span>
+ <span class="rh-fastest" hidden> GIRO PIÙ VELOCE <b data-value="fastest"></b></span><span class="rh-single">BEST <b data-value="single">--</b></span>
+ </div></div>
+      </div>
+      <div class="race-progress" data-progress-slot="2" role="group" aria-label="Progressione pilota"><div class="race-progress-readout"><span class="race-progress-percent" data-progress-percent>0%</span><span class="race-progress-laps" data-progress-laps>0 / 3 GIRI</span></div><div class="race-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span class="race-progress-fill" data-progress-fill></span><i class="race-progress-marker" data-progress-marker></i></div></div><div class="feed-view">
+        <canvas id="canvas3"></canvas>
+        <div class="placeholder">Nessun segnale</div>
+      </div>
+    </article>
+
+    <article class="feed-card feed-4">
+      <div class="feed-label">Pilota 4</div>
+      <div class="signal-overlay">
+        <div class="signal-badge">NO SIGNAL</div>
+      </div>
+      <div class="pilot-overlay empty" data-pilot-slot="4">
+        <div class="pilot-category">--</div>
+        <div class="pilot-main">
+          <div class="pilot-name"></div>
+        </div>
+        <div class="pilot-meta">
+          <span class="pilot-id">ID: --</span>
+        </div>
+        <div class="heat-mini">HEAT --</div>
+        <div class="rh-timing rh-stale"><span class="rh-seat">P4</span><div id="rh_node3" class="rh-values rh-qualification">
+ <span>POS <b data-value="rank">--</b></span><span>GIRI <b data-value="laps">--</b></span><span>LAST <b data-value="last">--</b></span>
+ <span class="rh-best3">BEST 3 <b data-value="best3">--</b><small data-value="range">In attesa del terzetto</small></span>
+ <span>ULTIMI 3 <b data-value="last3">--</b></span><span class="rh-delta">Δ PERSONALE <b data-value="delta">--</b></span>
+ <span class="rh-fastest" hidden> GIRO PIÙ VELOCE <b data-value="fastest"></b></span><span class="rh-single">BEST <b data-value="single">--</b></span>
+ </div></div>
+      </div>
+      <div class="race-progress" data-progress-slot="3" role="group" aria-label="Progressione pilota"><div class="race-progress-readout"><span class="race-progress-percent" data-progress-percent>0%</span><span class="race-progress-laps" data-progress-laps>0 / 3 GIRI</span></div><div class="race-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span class="race-progress-fill" data-progress-fill></span><i class="race-progress-marker" data-progress-marker></i></div></div><div class="feed-view">
+        <canvas id="canvas4"></canvas>
+        <div class="placeholder">Nessun segnale</div>
+      </div>
+    </article>
+
+  </section>
+
+
+<section id="raceProgressHud" class="race-progress-hud" aria-label="Avanzamento piloti">
+  <div class="race-progress-hud-head"><span>AVANZAMENTO GARA</span><b id="raceProgressTarget">3 GIRI</b></div>
+  <div class="race-progress-lanes">
+    <div class="race-lane lane-1" data-race-lane="0"><span class="race-lane-name" data-lane-name>P1 · In attesa</span><div class="race-lane-rail" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-label="Avanzamento pilota"><span class="race-lane-fill" data-lane-fill></span><span class="race-lane-token" data-lane-token><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 10-4-4m8 4 4-4m-8 8-4 4m8-4 4 4"/><circle cx="4" cy="4" r="2"/><circle cx="20" cy="4" r="2"/><circle cx="4" cy="20" r="2"/><circle cx="20" cy="20" r="2"/><circle cx="12" cy="12" r="2.4"/></svg></span></div><span class="race-lane-value" data-lane-value>0% · 0/3</span></div>
+    <div class="race-lane lane-2" data-race-lane="1"><span class="race-lane-name" data-lane-name>P2 · In attesa</span><div class="race-lane-rail" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-label="Avanzamento pilota"><span class="race-lane-fill" data-lane-fill></span><span class="race-lane-token" data-lane-token><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 10-4-4m8 4 4-4m-8 8-4 4m8-4 4 4"/><circle cx="4" cy="4" r="2"/><circle cx="20" cy="4" r="2"/><circle cx="4" cy="20" r="2"/><circle cx="20" cy="20" r="2"/><circle cx="12" cy="12" r="2.4"/></svg></span></div><span class="race-lane-value" data-lane-value>0% · 0/3</span></div>
+    <div class="race-lane lane-3" data-race-lane="2"><span class="race-lane-name" data-lane-name>P3 · In attesa</span><div class="race-lane-rail" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-label="Avanzamento pilota"><span class="race-lane-fill" data-lane-fill></span><span class="race-lane-token" data-lane-token><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 10-4-4m8 4 4-4m-8 8-4 4m8-4 4 4"/><circle cx="4" cy="4" r="2"/><circle cx="20" cy="4" r="2"/><circle cx="4" cy="20" r="2"/><circle cx="20" cy="20" r="2"/><circle cx="12" cy="12" r="2.4"/></svg></span></div><span class="race-lane-value" data-lane-value>0% · 0/3</span></div>
+    <div class="race-lane lane-4" data-race-lane="3"><span class="race-lane-name" data-lane-name>P4 · In attesa</span><div class="race-lane-rail" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-label="Avanzamento pilota"><span class="race-lane-fill" data-lane-fill></span><span class="race-lane-token" data-lane-token><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 10-4-4m8 4 4-4m-8 8-4 4m8-4 4 4"/><circle cx="4" cy="4" r="2"/><circle cx="20" cy="4" r="2"/><circle cx="4" cy="20" r="2"/><circle cx="20" cy="20" r="2"/><circle cx="12" cy="12" r="2.4"/></svg></span></div><span class="race-lane-value" data-lane-value>0% · 0/3</span></div>
+  </div>
+</section>
+
+</main>
+
+<footer>GND · Live Video</footer>
+
+<script>
+const cameraSelect = document.getElementById("cameraSelect");
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsPanel = document.getElementById("settingsPanel");
+const enableBtn = document.getElementById("enableBtn");
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const refreshBtn = document.getElementById("refreshBtn");
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+const systemStatus = document.getElementById("systemStatus");
+
+const recordStartBtn = document.getElementById("recordStartBtn");
+const recordStopBtn = document.getElementById("recordStopBtn");
+const autoRecordBtn = document.getElementById("autoRecordBtn");
+const recordingState = document.getElementById("recordingState");
+const recordingStateText = document.getElementById("recordingStateText");
+const recordingDuration = document.getElementById("recordingDuration");
+
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordingStartedAt = null;
+let recordingTimer = null;
+
+let autoRecordArmed = false;
+let autoRecordStartedBySystem = false;
+let autoRecordSignalSince = null;
+let autoRecordNoSignalSince = null;
+const autoRecordSignalPresent = [false,false,false,false];
+let fallbackStream=null, fallbackGeneration=0, fallbackActive=false;
+let allFeedsLostSince = null;
+function clearSignalPlaceholder(){
+  fallbackActive=false;
+  allFeedsLostSince = null;
+  document.getElementById('signalPlaceholder').hidden = true;
+  document.getElementById('fallbackHd').hidden = true;
+  document.body.classList.remove('all-feeds-lost');
+}
+function updateSignalPlaceholder(now){
+  if(!currentStream || autoRecordSignalPresent.some(Boolean)){
+    clearSignalPlaceholder();
+    return;
+  }
+  if(allFeedsLostSince === null) allFeedsLostSince = now;
+  const show = now - allFeedsLostSince >= 5000;
+  displayFallback(show);
+  document.body.classList.toggle('all-feeds-lost',show);
+}
+
+
+
+const heatSheetInput = document.getElementById("heatSheetInput");
+const loadHeatsBtn = document.getElementById("loadHeatsBtn");
+const reloadHeatsBtn = document.getElementById("reloadHeatsBtn");
+const prevHeatBtn = document.getElementById("prevHeatBtn");
+const nextHeatBtn = document.getElementById("nextHeatBtn");
+const heatCurrent = document.getElementById("heatCurrent");
+const heatDescriptionOverlay = document.getElementById("heatDescriptionOverlay");
+const pilotOverlays = [...document.querySelectorAll(".pilot-overlay")];
+const heatMiniLabels = [...document.querySelectorAll(".heat-mini")];
+const feedLabels = [...document.querySelectorAll(".feed-label")];
+const targetLapsInput = document.getElementById("targetLapsInput");
+function normalizeRaceLapTarget(value){const parsed=Number.parseInt(value,10);return Number.isFinite(parsed)?Math.max(1,Math.min(100,parsed)):3;}
+let targetRaceLaps=normalizeRaceLapTarget(localStorage.getItem("gndRaceTargetLaps")||3);
+let latestValidLapCounts=[0,0,0,0];
+if(targetLapsInput)targetLapsInput.value=targetRaceLaps;
+function updateRaceProgress(){
+  const targetLabel=document.getElementById("raceProgressTarget");
+  if(targetLabel)targetLabel.textContent=targetRaceLaps+" GIRI";
+  document.querySelectorAll("[data-race-lane]").forEach((lane,index)=>{
+    const completed=Math.max(0,latestValidLapCounts[index]||0),shown=Math.min(completed,targetRaceLaps),percent=Math.min(100,Math.round(shown/targetRaceLaps*100));
+    const fill=lane.querySelector("[data-lane-fill]"),token=lane.querySelector("[data-lane-token]"),value=lane.querySelector("[data-lane-value]"),rail=lane.querySelector(".race-lane-rail");
+    if(fill)fill.style.width=percent+"%";
+    if(token)token.style.left=percent+"%";
+    if(value)value.textContent=percent+"% · "+shown+"/"+targetRaceLaps;
+    if(rail){rail.setAttribute("aria-valuemin","0");rail.setAttribute("aria-valuemax",String(targetRaceLaps));rail.setAttribute("aria-valuenow",String(shown));rail.setAttribute("aria-label","P"+(index+1)+" · "+percent+"% della gara completata");}
+    lane.classList.toggle("complete",percent===100);
+  });
+  document.querySelectorAll(".race-progress").forEach((bar,index)=>{
+    const completed=Math.max(0,latestValidLapCounts[index]||0);
+    const shown=Math.min(completed,targetRaceLaps);
+    const percent=Math.min(100,Math.round(shown/targetRaceLaps*100));
+    const fill=bar.querySelector("[data-progress-fill]"),marker=bar.querySelector("[data-progress-marker]"),pct=bar.querySelector("[data-progress-percent]"),laps=bar.querySelector("[data-progress-laps]"),track=bar.querySelector("[role='progressbar']");
+    if(fill)fill.style.width=percent+"%";
+    if(marker)marker.style.left=percent+"%";
+    if(pct)pct.textContent=percent+"%";
+    if(laps)laps.textContent=shown+" / "+targetRaceLaps+" GIRI";
+    if(track){track.setAttribute("aria-valuemax",String(targetRaceLaps));track.setAttribute("aria-valuenow",String(shown));track.setAttribute("aria-label",percent+"% della gara completata");}
+    bar.classList.toggle("complete",percent===100);
+  });
+}
+if(targetLapsInput){targetLapsInput.addEventListener("change",()=>{targetRaceLaps=normalizeRaceLapTarget(targetLapsInput.value);targetLapsInput.value=targetRaceLaps;localStorage.setItem("gndRaceTargetLaps",String(targetRaceLaps));updateRaceProgress();});}
+updateRaceProgress();
+
+let heats = [];
+let currentHeatIndex = 0;
+let heatSheetId = localStorage.getItem("gndHeatSheetId") || "1fNKQOTEUjQ17VSKYmlYhYHilcCtu-GrQT1q5Ym4Pw6o";
+heatSheetInput.value = heatSheetId;
+
+
+const sourceVideo = document.getElementById("sourceVideo");
+const previewVideo = document.getElementById("previewVideo");
+const canvases = [1,2,3,4].map(i=>document.getElementById(`canvas${i}`));
+const cards = [...document.querySelectorAll(".feed-card")];
+const diagCards = [...document.querySelectorAll(".diag-card")];
+
+let drawFrameId = null;
+let signalAnalysisTimer = null;
+const signalState = [0,0,0,0];
+const signalLostSince = [null,null,null,null];
+const signalDNF = [false,false,false,false];
+
+let currentStream = null;
+
+function setStatus(message,isError=false){
+  systemStatus.classList.toggle("error",isError);
+  systemStatus.innerHTML = `<strong>Stato:</strong> ${message}`;
+}
+
+function checkEnvironment(){
+  const ok =
+    window.isSecureContext ||
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1";
+
+  if(!ok){
+    setStatus(
+      "la webcam può essere bloccata. Apri la pagina tramite HTTPS o localhost.",
+      true
+    );
+  }
+
+  return ok;
+}
+
+function describeMediaError(err){
+  const name=err?.name||"Error";
+  if(name==="NotAllowedError"||name==="PermissionDeniedError"){
+    if(!window.isSecureContext)return "Accesso webcam bloccato: apri Racecontrol da HTTPS o localhost in un browser desktop.";
+    return "Accesso webcam negato dal browser. Consenti la fotocamera nelle autorizzazioni della pagina e riprova. Se sei nella preview integrata di Codex, apri il modulo in una scheda di Chrome o Edge.";
+  }
+  if(name==="NotFoundError"||name==="DevicesNotFoundError")return "Nessuna videocamera o capture card disponibile. Verifica il collegamento e premi Aggiorna Sorgenti.";
+  if(name==="NotReadableError"||name==="TrackStartError")return "La sorgente video è occupata o non leggibile. Chiudi gli altri programmi che la stanno usando e riprova.";
+  if(name==="OverconstrainedError"||name==="ConstraintNotSatisfiedError")return "La sorgente selezionata non è più disponibile. Premi Aggiorna Sorgenti e selezionala di nuovo.";
+  if(name==="SecurityError")return "Il browser richiede un contesto sicuro. Apri Racecontrol da HTTPS o localhost.";
+  return `Errore accesso video: ${name}${err?.message?" · "+err.message:""}`;
+}
+async function requestPermission(){
+  if(!window.isSecureContext){
+    setStatus("Webcam non disponibile: apri Racecontrol da HTTPS o localhost in un browser desktop.",true);
+    return false;
+  }
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    setStatus("API webcam non disponibile nel browser.",true);
+    return false;
+  }
+
+  try{
+    const testStream =
+      await navigator.mediaDevices.getUserMedia({
+        video:true,
+        audio:false
+      });
+
+    testStream.getTracks().forEach(t=>t.stop());
+
+    setStatus("Accesso alla sorgente video autorizzato.");
+    return true;
+
+  }catch(err){
+    setStatus(describeMediaError(err),true);
+    return false;
+  }
+}
+
+async function loadDevices(){
+  if(!navigator.mediaDevices?.enumerateDevices) return;
+
+  const devices =
+    await navigator.mediaDevices.enumerateDevices();
+
+  const cameras =
+    devices.filter(d=>d.kind==="videoinput");
+
+  cameraSelect.innerHTML = "";
+
+  if(!cameras.length){
+    cameraSelect.innerHTML =
+      '<option value="">Nessuna sorgente video</option>';
+
+    setStatus("Nessuna sorgente video rilevata.",true);
+    return;
+  }
+
+  cameras.forEach((camera,index)=>{
+    const option = document.createElement("option");
+
+    option.value = camera.deviceId || "";
+    option.textContent =
+      camera.label || `Video Input ${index+1}`;
+
+    cameraSelect.appendChild(option);
+  });
+
+  setStatus(`${cameras.length} sorgente/i video rilevata/e.`);
+}
+
+function stopDrawing(){
+  if(drawFrameId){
+    cancelAnimationFrame(drawFrameId);
+    drawFrameId = null;
+  }
+}
+
+function stopStream(){
+  clearSignalPlaceholder();
+  if(mediaRecorder && mediaRecorder.state !== "inactive"){
+    stopVideoRecording();
+  }
+  stopDrawing();
+  stopSignalAnalysis();
+
+  if(currentStream){
+    currentStream.getTracks().forEach(track=>track.stop());
+    currentStream = null;
+  }
+
+  try{ sourceVideo.pause(); }catch(e){}
+  try{ previewVideo.pause(); }catch(e){}
+  sourceVideo.srcObject = null;
+  previewVideo.srcObject = null;
+
+  canvases.forEach(canvas=>{
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+  });
+
+  cards.forEach(card=>card.classList.remove("active"));
+
+  setStatus("Feed fermato.");
+}
+
+
+function analyzeCanvasSignal(canvas){
+  const ctx = canvas.getContext("2d");
+
+  const sampleW = 64;
+  const sampleH = 36;
+
+  const sample = document.createElement("canvas");
+  sample.width = sampleW;
+  sample.height = sampleH;
+
+  const sctx = sample.getContext("2d", {willReadFrequently:true});
+  sctx.drawImage(canvas,0,0,sampleW,sampleH);
+
+  const data = sctx.getImageData(0,0,sampleW,sampleH).data;
+
+  let lumSum = 0;
+  let satSum = 0;
+  let lumSqSum = 0;
+  let count = 0;
+
+  for(let i=0;i<data.length;i+=4){
+    const r = data[i];
+    const g = data[i+1];
+    const b = data[i+2];
+
+    const max = Math.max(r,g,b);
+    const min = Math.min(r,g,b);
+
+    const lum = (r+g+b)/3;
+    const sat = max-min;
+
+    lumSum += lum;
+    satSum += sat;
+    lumSqSum += lum*lum;
+    count++;
+  }
+
+  const avgLum = lumSum/count;
+  const avgSat = satSum/count;
+  const variance = Math.max(0,(lumSqSum/count)-(avgLum*avgLum));
+
+  return {
+    lum:avgLum,
+    sat:avgSat,
+    variance
+  };
+}
+
+function classifySignal(metrics){
+  /*
+    Conservative initial thresholds:
+    - low color saturation: typical grey placeholder
+    - low luminance variance: nearly uniform field
+    We intentionally require both.
+  */
+  const greyish = metrics.sat < 10;
+  const flat = metrics.variance < 180;
+
+  return greyish && flat;
+}
+
+function runSignalAnalysis(){
+  canvases.forEach((canvas,index)=>{
+    if(!canvas.width || !canvas.height) return;
+
+    const metrics = analyzeCanvasSignal(canvas);
+    const probableNoSignal = classifySignal(metrics);
+
+    // Dato grezzo usato da AUTO REC:
+    // almeno un quadrante non classificato come grigio/piatto = segnale presente.
+    autoRecordSignalPresent[index] = !probableNoSignal;
+
+    // Persistence counter: ~1.5 sec to trigger, ~0.5 sec to recover
+    if(probableNoSignal){
+      signalState[index] = Math.min(signalState[index]+1,10);
+    }else{
+      signalState[index] = Math.max(signalState[index]-2,0);
+    }
+
+    const noSignal = signalState[index] >= 5;
+    const now = performance.now();
+
+    if(noSignal){
+      if(signalLostSince[index] === null){
+        signalLostSince[index] = now;
+      }
+
+      if(!signalDNF[index] && (now - signalLostSince[index]) >= 5000){
+        signalDNF[index] = true;
+      }
+    }else{
+      signalLostSince[index] = null;
+      signalDNF[index] = false;
+    }
+
+    const isDNF = signalDNF[index];
+
+    cards[index].classList.toggle("no-signal",noSignal && !isDNF);
+    cards[index].classList.toggle("dnf",isDNF);
+
+    const badge = cards[index].querySelector(".signal-badge");
+    if(badge){
+      badge.textContent = isDNF ? "DNF" : "NO SIGNAL";
+    }
+
+    const diag = diagCards[index];
+    if(diag){
+      diag.querySelector(".diag-values").textContent =
+        `Lum ${metrics.lum.toFixed(1)} · Sat ${metrics.sat.toFixed(1)} · Var ${metrics.variance.toFixed(1)}`;
+
+      const state = diag.querySelector(".diag-state");
+
+      if(isDNF){
+        state.textContent = "DNF";
+      }else if(noSignal){
+        const elapsed = signalLostSince[index] === null
+          ? 0
+          : Math.min(5,(now-signalLostSince[index])/1000);
+        state.textContent = `NO SIGNAL ${elapsed.toFixed(1)}s`;
+      }else{
+        state.textContent = "SEGNALE OK";
+      }
+
+      state.classList.toggle("ok",!noSignal);
+      state.classList.toggle("bad",noSignal);
+    }
+  });
+
+  evaluateAutoRecording();
+  updateSignalPlaceholder(performance.now());
+}
+
+function startSignalAnalysis(){
+  if(signalAnalysisTimer){
+    clearInterval(signalAnalysisTimer);
+  }
+
+  signalAnalysisTimer = setInterval(runSignalAnalysis,300);
+}
+
+function stopSignalAnalysis(){
+  if(signalAnalysisTimer){
+    clearInterval(signalAnalysisTimer);
+    signalAnalysisTimer = null;
+  }
+
+  signalState.fill(0);
+  signalLostSince.fill(null);
+  signalDNF.fill(false);
+  autoRecordSignalPresent.fill(false);
+  autoRecordSignalSince = null;
+  autoRecordNoSignalSince = null;
+
+  cards.forEach(card=>{
+    card.classList.remove("no-signal","dnf");
+    const badge = card.querySelector(".signal-badge");
+    if(badge) badge.textContent = "NO SIGNAL";
+  });
+}
+
+function startDrawingMatrix(){
+  const draw = ()=>{
+    if(!currentStream || sourceVideo.readyState < 2){
+      drawFrameId = requestAnimationFrame(draw);
+      return;
+    }
+
+    const sw = sourceVideo.videoWidth;
+    const sh = sourceVideo.videoHeight;
+
+    if(!sw || !sh){
+      drawFrameId = requestAnimationFrame(draw);
+      return;
+    }
+
+    const halfW = Math.floor(sw / 2);
+    const halfH = Math.floor(sh / 2);
+
+    const crops = [
+      [0,      0,       halfW, halfH], // PILOTA 1
+      [halfW,  0,       sw-halfW, halfH], // PILOTA 2
+      [0,      halfH,   halfW, sh-halfH], // PILOTA 3
+      [halfW,  halfH,   sw-halfW, sh-halfH] // PILOTA 4
+    ];
+
+    canvases.forEach((canvas,index)=>{
+      const rect = canvas.getBoundingClientRect();
+
+      // Dimensione interna del canvas proporzionale al riquadro visualizzato
+      const targetW = Math.max(320, Math.floor(rect.width * window.devicePixelRatio));
+      const targetH = Math.max(180, Math.floor(rect.height * window.devicePixelRatio));
+
+      if(canvas.width !== targetW || canvas.height !== targetH){
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+
+      const ctx = canvas.getContext("2d");
+      const [sx,sy,swidth,sheight] = crops[index];
+
+      ctx.drawImage(
+        sourceVideo,
+        sx,sy,swidth,sheight,
+        0,0,canvas.width,canvas.height
+      );
+    });
+
+    drawFrameId = requestAnimationFrame(draw);
+  };
+
+  draw();
+}
+
+async function startStream(){
+  stopStream();
+
+  try{
+    let videoConstraint = true;
+
+    /*
+      Alcuni browser/capture card mostrano la sorgente ma restituiscono
+      un deviceId vuoto finché non viene stabilito lo stream.
+      In quel caso apriamo direttamente il dispositivo video disponibile.
+    */
+    if(cameraSelect.value){
+      videoConstraint = {
+        deviceId:{ideal:cameraSelect.value}
+      };
+    }
+
+    currentStream =
+      await navigator.mediaDevices.getUserMedia({
+        video:videoConstraint,
+        audio:false
+      });
+
+    const track =
+      currentStream.getVideoTracks()[0];
+
+    if(!track){
+      throw new Error("Nessuna traccia video");
+    }
+
+    const settings =
+      track.getSettings ? track.getSettings() : {};
+
+    sourceVideo.srcObject = currentStream;
+    previewVideo.srcObject = currentStream;
+
+    sourceVideo.muted = true;
+    previewVideo.muted = true;
+    sourceVideo.playsInline = true;
+    previewVideo.playsInline = true;
+
+    await sourceVideo.play();
+    try{ await previewVideo.play(); }catch(e){}
+
+    if(sourceVideo.readyState < 2){
+      await new Promise(resolve=>{
+        sourceVideo.addEventListener("loadeddata",resolve,{once:true});
+        setTimeout(resolve,1500);
+      });
+    }
+
+    cards.forEach(card=>card.classList.add("active"));
+    startDrawingMatrix();
+    startSignalAnalysis();
+
+    setStatus(
+      `LIVE · sorgente ${sourceVideo.videoWidth || settings.width || "?"}×${sourceVideo.videoHeight || settings.height || "?"} · matrice 2×2. La preview sopra mostra il segnale originale.`
+    );
+
+  }catch(err){
+    console.error(err);
+
+    let msg = describeMediaError(err);
+
+    setStatus(msg,true);
+  }
+}
+
+enableBtn.addEventListener("click",async ()=>{
+  const ok = await requestPermission();
+
+  if(ok){
+    await loadDevices();
+  }
+});
+
+refreshBtn.addEventListener("click",loadDevices);
+startBtn.addEventListener("click",startStream);
+stopBtn.addEventListener("click",stopStream);
+
+async function toggleFullscreen(){
+  document.body.classList.toggle("presentation-mode");
+
+  if(document.body.classList.contains("presentation-mode")){
+    try{
+      if(!document.fullscreenElement){
+        await document.documentElement.requestFullscreen();
+      }
+    }catch(e){}
+  }else{
+    if(document.fullscreenElement){
+      try{ await document.exitFullscreen(); }catch(e){}
+    }
+  }
+}
+
+settingsBtn.addEventListener("click",()=>{
+  settingsPanel.classList.toggle("open");
+  settingsBtn.textContent =
+    settingsPanel.classList.contains("open")
+      ? "Chiudi Impostazioni"
+      : "Impostazioni";
+});
+
+fullscreenBtn.addEventListener("click",toggleFullscreen);
+
+document.addEventListener("keydown",event=>{
+  if(event.target?.closest?.("input, textarea, select, [contenteditable]")) return;
+  if(event.key.toLowerCase()==="f"){
+    toggleFullscreen();
+  }
+});
+
+document.addEventListener("fullscreenchange",()=>{
+  if(!document.fullscreenElement){
+    document.body.classList.remove("presentation-mode");
+  }
+});
+
+
+/* =========================
+   GOOGLE SHEET · HEAT DATA
+   ========================= */
+
+function normalizeText(value){
+  return String(value ?? "")
+    .replace(/\u00A0/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function extractSheetId(value){
+  const text = normalizeText(value);
+
+  const urlMatch =
+    text.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+
+  if(urlMatch){
+    return urlMatch[1];
+  }
+
+  return text;
+}
+
+function parseCSV(text){
+  const rows=[];
+  let row=[];
+  let cell="";
+  let inside=false;
+
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    const n=text[i+1];
+
+    if(c === '"' && inside && n === '"'){
+      cell += '"';
+      i++;
+    }
+    else if(c === '"'){
+      inside = !inside;
+    }
+    else if(c === ',' && !inside){
+      row.push(cell.trim());
+      cell="";
+    }
+    else if((c === '\n' || c === '\r') && !inside){
+      if(cell !== "" || row.length){
+        row.push(cell.trim());
+        rows.push(row);
+        row=[];
+        cell="";
+      }
+    }
+    else{
+      cell += c;
+    }
+  }
+
+  if(cell !== "" || row.length){
+    row.push(cell.trim());
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+function buildHeats(rows){
+  /*
+    Struttura fissa del tab HEAT:
+    A = Heat
+    B = Slot (P1/P2/P3/P4)
+    C = Nome e Cognome
+    D = ID
+    E = Categoria (PRO/OPEN)
+    F = Descrizione Heat
+  */
+
+  const HEAT_COL = 0;
+  const SLOT_COL = 1;
+  const NAME_COL = 2;
+  const ID_COL = 3;
+  const CATEGORY_COL = 4;
+  const DESCRIPTION_COL = 5;
+
+  const map = new Map();
+
+  for(let r=0;r<rows.length;r++){
+    const row = rows[r] || [];
+
+    const heatRaw = normalizeText(row[HEAT_COL]);
+    const slotRaw = normalizeText(row[SLOT_COL]).toUpperCase();
+    const name = normalizeText(row[NAME_COL]);
+    const id = normalizeText(row[ID_COL]);
+    const category = normalizeText(row[CATEGORY_COL]).toUpperCase();
+    const description = normalizeText(row[DESCRIPTION_COL]);
+
+    // Heat valide:
+    // 12  = heat normale
+    // F46 = finale / heat delle eliminatorie
+    if(!/^(?:\d+|F\d+)$/i.test(heatRaw)){
+      continue;
+    }
+
+    if(!/^P[1-4]$/.test(slotRaw)){
+      continue;
+    }
+
+    const heatCode = heatRaw.toUpperCase();
+    const isFinal = heatCode.startsWith("F");
+    const heatNumber = parseInt(isFinal ? heatCode.substring(1) : heatCode,10);
+    const slotNumber = parseInt(slotRaw.substring(1),10);
+
+    if(!map.has(heatCode)){
+      map.set(heatCode,{
+        heat:heatCode,
+        heatNumber,
+        isFinal,
+        description:description || "",
+        pilots:[null,null,null,null]
+      });
+    }
+
+    if(!map.get(heatCode).description && description){
+      map.get(heatCode).description = description;
+    }
+
+    map.get(heatCode).pilots[slotNumber-1] = {
+      slot:slotRaw,
+      name,
+      id,
+      category
+    };
+  }
+
+  const result = [...map.values()]
+    .sort((a,b)=>{
+      if(a.isFinal !== b.isFinal){
+        return a.isFinal ? 1 : -1;
+      }
+      return a.heatNumber - b.heatNumber;
+    });
+
+  if(!result.length){
+    throw new Error(
+      "Nessuna heat valida trovata. Verifica che il tab HEAT abbia: A=Heat, B=Slot P1-P4, C=Nome, D=ID, E=Categoria."
+    );
+  }
+
+  return result;
+}
+
+function renderWaitingHeat(heat){
+ document.getElementById('waitingHeat').textContent=heat?'HEAT '+heat.heat:'HEAT —';
+ document.getElementById('waitingDescription').textContent=heat?.description || (heat?'Piloti in griglia':'Pronti a volare.');
+ for(let i=0;i<4;i++){
+  const card=document.getElementById('waitingPilot'+i),pilot=heat?.pilots?.[i];
+  card.querySelector('[data-wait-name]').textContent=pilot?.name || 'Non assegnato';
+  card.querySelector('[data-wait-id]').textContent='ID '+(pilot?.id || '—');
+  card.querySelector('[data-wait-category]').textContent=pilot?.category || '—';
+  card.classList.toggle('waiting-open',pilot?.category==='OPEN');
+  card.classList.toggle('waiting-empty',!pilot);
+ }
+}
+function renderCurrentHeat(){
+  renderWaitingHeat(heats[currentHeatIndex]);
+  const heat = heats[currentHeatIndex];
+  document.querySelectorAll("[data-race-lane]").forEach((lane,index)=>{
+    const pilot=heat?.pilots?.[index];
+    const label=lane.querySelector("[data-lane-name]");
+    if(label)label.textContent=`P${index+1} · ${pilot?.name || (heat ? "Non assegnato" : "In attesa")}`;
+  });
+
+  if(!heat){
+    heatCurrent.textContent = "Heat --";
+    heatDescriptionOverlay.textContent = "Descrizione Heat";
+    heatDescriptionOverlay.dataset.heatLabel = "HEAT --";
+    feedLabels.forEach(label=>{
+      label.textContent = `P${feedLabels.indexOf(label)+1} · In attesa`;
+    });
+    heatMiniLabels.forEach(label=>{ label.textContent = "HEAT --"; });
+
+    pilotOverlays.forEach((overlay,index)=>{
+      overlay.classList.add("empty");
+      overlay.querySelector(".pilot-name").textContent = `Pilota ${index+1}`;
+      overlay.querySelector(".pilot-id").textContent = "ID: --";
+
+      const cat = overlay.querySelector(".pilot-category");
+      cat.textContent = "--";
+      cat.classList.remove("open");
+    });
+
+    return;
+  }
+
+  heatCurrent.textContent =
+    heat.isFinal
+      ? `Eliminatorie · ${heat.heat}`
+      : `Heat ${heat.heat}`;
+
+  heatDescriptionOverlay.textContent =
+    heat.description || (heat.isFinal ? "Eliminatorie" : `Heat ${heat.heat}`);
+  heatDescriptionOverlay.dataset.heatLabel = `HEAT ${heat.heat}`;
+
+  feedLabels.forEach(label=>{
+    label.textContent = `P${feedLabels.indexOf(label)+1} · ${heat.pilots[feedLabels.indexOf(label)]?.name || "Non assegnato"}`;
+  });
+
+  heatMiniLabels.forEach(label=>{ label.textContent = `HEAT ${heat.heat}`; });
+
+  pilotOverlays.forEach((overlay,index)=>{
+    /*
+      index 0 -> P1 -> quadrante Pilota 1
+      index 1 -> P2 -> quadrante Pilota 2
+      index 2 -> P3 -> quadrante Pilota 3
+      index 3 -> P4 -> quadrante Pilota 4
+    */
+    const pilot = heat.pilots[index];
+
+    const nameEl = overlay.querySelector(".pilot-name");
+    const idEl = overlay.querySelector(".pilot-id");
+    const catEl = overlay.querySelector(".pilot-category");
+
+    catEl.classList.remove("open");
+    overlay.classList.remove("category-open","category-pro");
+
+    if(!pilot){
+      overlay.classList.add("empty");
+      nameEl.textContent = `P${index+1} · Non assegnato`;
+      idEl.textContent = "ID: --";
+      catEl.textContent = "--";
+      return;
+    }
+
+    overlay.classList.remove("empty");
+    nameEl.textContent = pilot.name || `P${index+1}`;
+    idEl.textContent = `ID: ${pilot.id || "--"}`;
+
+    const category = pilot.category || "--";
+    catEl.textContent = category;
+
+    if(category === "OPEN"){
+      catEl.classList.add("open");
+      overlay.classList.add("category-open");
+    }
+    else if(category === "PRO"){
+      overlay.classList.add("category-pro");
+    }
+  });
+}
+
+function gvizTableToRows(table){
+  const rows=[];
+
+  // Header row from GViz column labels
+  if(table && Array.isArray(table.cols)){
+    rows.push(
+      table.cols.map(col =>
+        normalizeText(col.label || col.id || "")
+      )
+    );
+  }
+
+  if(table && Array.isArray(table.rows)){
+    table.rows.forEach(row=>{
+      const values = [];
+
+      (row.c || []).forEach(cell=>{
+        if(!cell){
+          values.push("");
+          return;
+        }
+
+        // Prefer formatted value when available, otherwise raw value.
+        const value =
+          cell.f !== undefined && cell.f !== null
+            ? cell.f
+            : cell.v !== undefined && cell.v !== null
+              ? cell.v
+              : "";
+
+        values.push(normalizeText(value));
+      });
+
+      rows.push(values);
+    });
+  }
+
+  return rows;
+}
+
+function loadHeatSheetViaJSONP(sheetId){
+  return new Promise((resolve,reject)=>{
+    const callbackName =
+      "gndHeatCallback_" + Date.now() + "_" +
+      Math.floor(Math.random()*100000);
+
+    const script = document.createElement("script");
+    let completed = false;
+
+    const cleanup = ()=>{
+      try{ delete window[callbackName]; }catch(e){}
+      if(script.parentNode){
+        script.parentNode.removeChild(script);
+      }
+    };
+
+    const timeout = setTimeout(()=>{
+      if(completed) return;
+      completed = true;
+      cleanup();
+      reject(
+        new Error(
+          "Timeout caricamento Google Sheet. Verifica che il foglio sia condiviso come visibile tramite link."
+        )
+      );
+    },10000);
+
+    window[callbackName] = response=>{
+      if(completed) return;
+      completed = true;
+      clearTimeout(timeout);
+
+      try{
+        if(!response){
+          throw new Error("Risposta vuota da Google Sheets.");
+        }
+
+        if(response.status === "error"){
+          const detail =
+            response.errors?.[0]?.detailed_message ||
+            response.errors?.[0]?.message ||
+            "Errore Google Visualization.";
+
+          throw new Error(detail);
+        }
+
+        if(!response.table){
+          throw new Error("Tabella HEAT non disponibile.");
+        }
+
+        const rows = gvizTableToRows(response.table);
+        cleanup();
+        resolve(rows);
+      }
+      catch(err){
+        cleanup();
+        reject(err);
+      }
+    };
+
+    script.onerror = ()=>{
+      if(completed) return;
+      completed = true;
+      clearTimeout(timeout);
+      cleanup();
+
+      reject(
+        new Error(
+          "Google Sheets non raggiungibile dal browser."
+        )
+      );
+    };
+
+    const params = new URLSearchParams({
+      sheet:"HEAT",
+      tq:"select *",
+      tqx:`responseHandler:${callbackName}`
+    });
+
+    script.src =
+      `https://docs.google.com/spreadsheets/d/${encodeURIComponent(sheetId)}/gviz/tq?${params.toString()}`;
+
+    document.head.appendChild(script);
+  });
+}
+
+async function loadHeats(){
+  const inputId =
+    extractSheetId(heatSheetInput.value);
+
+  if(!inputId){
+    setStatus("Inserisci l'URL o l'ID del Google Sheet.",true);
+    return;
+  }
+
+  heatSheetId = inputId;
+  heatSheetInput.value = heatSheetId;
+  localStorage.setItem("gndHeatSheetId",heatSheetId);
+
+  try{
+    setStatus("Caricamento heat dal tab HEAT...");
+
+    const rows =
+      await loadHeatSheetViaJSONP(heatSheetId);
+
+    heats = buildHeats(rows);
+
+    if(currentHeatIndex >= heats.length){
+      currentHeatIndex = 0;
+    }
+
+    renderCurrentHeat();
+
+    setStatus(
+      `${heats.length} heat caricate dal tab HEAT. Heat corrente: ${heats[currentHeatIndex].heat}.`
+    );
+  }
+  catch(err){
+    console.error("HEAT load error:",err);
+
+    heats = [];
+    currentHeatIndex = 0;
+    renderCurrentHeat();
+
+    setStatus(
+      `Errore caricamento HEAT: ${err.message}`,
+      true
+    );
+  }
+}
+
+prevHeatBtn.addEventListener("click",()=>{
+  if(!heats.length) return;
+
+  currentHeatIndex =
+    (currentHeatIndex - 1 + heats.length) % heats.length;
+
+  renderCurrentHeat();
+});
+
+nextHeatBtn.addEventListener("click",()=>{
+  if(!heats.length) return;
+
+  currentHeatIndex =
+    (currentHeatIndex + 1) % heats.length;
+
+  renderCurrentHeat();
+});
+
+loadHeatsBtn.addEventListener("click",loadHeats);
+reloadHeatsBtn.addEventListener("click",loadHeats);
+
+/* Tastiera: freccia sx/dx cambia heat */
+document.addEventListener("keydown",event=>{
+  if(event.target?.closest?.("input, textarea, select, [contenteditable]")) return;
+  if(event.target instanceof HTMLInputElement) return;
+
+  if(event.key === "ArrowLeft"){
+    if(!heats.length) return;
+    currentHeatIndex =
+      (currentHeatIndex - 1 + heats.length) % heats.length;
+    renderCurrentHeat();
+  }
+
+  if(event.key === "ArrowRight"){
+    if(!heats.length) return;
+    currentHeatIndex =
+      (currentHeatIndex + 1) % heats.length;
+    renderCurrentHeat();
+  }
+});
+
+renderCurrentHeat();
+
+/* Prova a caricare automaticamente il foglio configurato */
+loadHeats();
+
+
+/* =========================
+   VIDEO RECORDING
+   ========================= */
+
+function chooseRecordingMimeType(){
+  const candidates = [
+    "video/webm;codecs=vp9",
+    "video/webm;codecs=vp8",
+    "video/webm"
+  ];
+
+  if(typeof MediaRecorder === "undefined"){
+    return "";
+  }
+
+  for(const type of candidates){
+    if(MediaRecorder.isTypeSupported(type)){
+      return type;
+    }
+  }
+
+  return "";
+}
+
+function sanitizeFilenamePart(value){
+  return String(value || "")
+    .trim()
+    .replace(/[^\w\-]+/g,"_")
+    .replace(/^_+|_+$/g,"")
+    .slice(0,60);
+}
+
+function currentHeatCodeForFilename(){
+  try{
+    const heat = heats?.[currentHeatIndex];
+    if(heat?.heat){
+      return sanitizeFilenamePart(`Heat_${heat.heat}`);
+    }
+  }catch(e){}
+  return "Heat";
+}
+
+function formatRecordingDuration(ms){
+  const total = Math.floor(ms/1000);
+  const min = Math.floor(total/60);
+  const sec = total%60;
+  return `${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+}
+
+function updateRecordingUi(active){
+  recordingState.classList.toggle("active",active);
+  recordStartBtn.classList.toggle("active",active);
+  recordingStateText.textContent = active ? "REC" : "Pronto";
+}
+
+function startRecordingClock(){
+  if(recordingTimer) clearInterval(recordingTimer);
+  recordingStartedAt = Date.now();
+  recordingDuration.textContent = "00:00";
+
+  recordingTimer = setInterval(()=>{
+    recordingDuration.textContent =
+      formatRecordingDuration(Date.now()-recordingStartedAt);
+  },250);
+}
+
+function stopRecordingClock(){
+  if(recordingTimer){
+    clearInterval(recordingTimer);
+    recordingTimer = null;
+  }
+}
+
+function startVideoRecording(){
+  if(mediaRecorder && mediaRecorder.state !== "inactive") return;
+
+  if(!currentStream){
+    setStatus("Avvia prima il feed video: non c'è uno stream da registrare.",true);
+    return;
+  }
+
+  if(typeof MediaRecorder === "undefined"){
+    setStatus("Questo browser non supporta MediaRecorder.",true);
+    return;
+  }
+
+  try{
+    const mimeType = chooseRecordingMimeType();
+    recordedChunks = [];
+
+    const options = {videoBitsPerSecond:8000000};
+    if(mimeType) options.mimeType = mimeType;
+
+    mediaRecorder = new MediaRecorder(currentStream,options);
+
+    mediaRecorder.ondataavailable = event=>{
+      if(event.data && event.data.size > 0){
+        recordedChunks.push(event.data);
+      }
+    };
+
+    mediaRecorder.onerror = event=>{
+      console.error("MediaRecorder error:",event);
+      setStatus("Errore durante la registrazione video.",true);
+    };
+
+    mediaRecorder.onstop = ()=>{
+      stopRecordingClock();
+      updateRecordingUi(false);
+
+      if(autoRecordArmed){
+        recordingStateText.textContent = "AUTO ARMATO";
+      }
+
+      if(!recordedChunks.length){
+        setStatus("Registrazione terminata ma nessun dato video è stato prodotto.",true);
+        return;
+      }
+
+      const type = mediaRecorder.mimeType || chooseRecordingMimeType() || "video/webm";
+      const blob = new Blob(recordedChunks,{type});
+
+      const now = new Date();
+      const date =
+        `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+      const time =
+        `${String(now.getHours()).padStart(2,"0")}-${String(now.getMinutes()).padStart(2,"0")}-${String(now.getSeconds()).padStart(2,"0")}`;
+
+      const filename =
+        `GND_${currentHeatCodeForFilename()}_${date}_${time}.webm`;
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(()=>URL.revokeObjectURL(url),10000);
+
+      setStatus(`Registrazione salvata: ${filename}`);
+      recordedChunks = [];
+      mediaRecorder = null;
+      recordingStartedAt = null;
+      recordingDuration.textContent = "00:00";
+    };
+
+    mediaRecorder.start(1000);
+    updateRecordingUi(true);
+    startRecordingClock();
+
+    setStatus(
+      `Registrazione video avviata · ${mediaRecorder.mimeType || "formato browser"}`
+    );
+  }catch(err){
+    console.error(err);
+    updateRecordingUi(false);
+    stopRecordingClock();
+    setStatus(`Impossibile avviare la registrazione: ${err.message || err}`,true);
+  }
+}
+
+function stopVideoRecording(){
+  if(!mediaRecorder || mediaRecorder.state === "inactive") return;
+
+  try{
+    recordingStateText.textContent = "Salvataggio...";
+    mediaRecorder.stop();
+  }catch(err){
+    console.error(err);
+    setStatus(`Errore arresto registrazione: ${err.message || err}`,true);
+  }
+}
+
+
+function setAutoRecordArmed(enabled){
+  autoRecordArmed = enabled;
+  autoRecordBtn.classList.toggle("armed",enabled);
+  autoRecordBtn.textContent = enabled ? "AUTO REC ON" : "AUTO REC";
+
+  autoRecordSignalSince = null;
+  autoRecordNoSignalSince = null;
+
+  if(enabled){
+    recordingStateText.textContent =
+      mediaRecorder && mediaRecorder.state !== "inactive"
+        ? "REC"
+        : "AUTO ARMATO";
+  }else if(!mediaRecorder || mediaRecorder.state === "inactive"){
+    recordingStateText.textContent = "Pronto";
+  }
+}
+
+function evaluateAutoRecording(){
+  if(!autoRecordArmed || !currentStream){
+    return;
+  }
+
+  const now = performance.now();
+  const anySignal = autoRecordSignalPresent.some(Boolean);
+
+  if(anySignal){
+    autoRecordNoSignalSince = null;
+
+    if(autoRecordSignalSince === null){
+      autoRecordSignalSince = now;
+    }
+
+    // Richiede circa 1 secondo di segnale valido per evitare falsi start.
+    const stableSignal =
+      (now - autoRecordSignalSince) >= 1000;
+
+    if(
+      stableSignal &&
+      (!mediaRecorder || mediaRecorder.state === "inactive")
+    ){
+      autoRecordStartedBySystem = true;
+      startVideoRecording();
+    }
+  }else{
+    autoRecordSignalSince = null;
+
+    if(autoRecordNoSignalSince === null){
+      autoRecordNoSignalSince = now;
+    }
+
+    // Se tutti i feed restano assenti per 2 secondi,
+    // chiude automaticamente la registrazione avviata da AUTO REC.
+    // Il piccolo ritardo evita stop dovuti a brevissimi disturbi video.
+    const allGoneLongEnough =
+      (now - autoRecordNoSignalSince) >= 2000;
+
+    if(
+      allGoneLongEnough &&
+      autoRecordStartedBySystem &&
+      mediaRecorder &&
+      mediaRecorder.state !== "inactive"
+    ){
+      autoRecordStartedBySystem = false;
+      stopVideoRecording();
+    }
+  }
+}
+
+autoRecordBtn.addEventListener("click",()=>{
+  setAutoRecordArmed(!autoRecordArmed);
+});
+
+recordStartBtn.addEventListener("click",()=>{
+  autoRecordStartedBySystem = false;
+  startVideoRecording();
+});
+recordStopBtn.addEventListener("click",stopVideoRecording);
+
+checkEnvironment();
+
+function fallbackMessage(message){document.getElementById('fallbackStatus').textContent=message;}
+function displayFallback(show){
+ fallbackActive=show;
+ const video=document.getElementById('fallbackVideo');
+ const ready=fallbackStream?.getVideoTracks().some(t=>t.readyState==='live') && video.readyState>=2 && !video.paused;
+ const hd=show && document.getElementById('fallbackMode').value==='hd' && ready;
+ document.getElementById('fallbackHd').hidden=!hd;
+ document.getElementById('signalPlaceholder').hidden=!show || !!hd;
+}
+async function refreshFallbackCameras(){
+ try{
+ const cameras=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');
+ const select=document.getElementById('fallbackCamera'),previous=select.value;
+ select.replaceChildren(new Option('Seleziona camera HD',''));
+ cameras.forEach((d,i)=>select.add(new Option(d.label || 'Camera '+(i+1),d.deviceId)));
+ if(cameras.some(d=>d.deviceId===previous))select.value=previous;
+ }catch(e){fallbackMessage('Impossibile elencare le camere: '+e.message);}
+}
+function stopFallbackCamera(){
+ fallbackGeneration++;
+ fallbackStream?.getTracks().forEach(t=>t.stop());fallbackStream=null;
+ document.getElementById('fallbackVideo').srcObject=null;
+ displayFallback(fallbackActive);fallbackMessage('HD non attiva. Grafica GND disponibile.');
+}
+async function startFallbackCamera(){
+ const id=document.getElementById('fallbackCamera').value;
+ const fpv=currentStream?.getVideoTracks()[0]?.getSettings().deviceId || cameraSelect.value;
+ if(!id){fallbackMessage('Seleziona una camera HD.');return;}
+ if(id===fpv){fallbackMessage('La camera HD deve essere diversa dalla sorgente FPV.');return;}
+ stopFallbackCamera();const generation=fallbackGeneration;
+ fallbackMessage('Avvio camera HD…');
+ try{
+ const stream=await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:id},width:{ideal:1920},height:{ideal:1080}},audio:false});
+ if(generation!==fallbackGeneration){stream.getTracks().forEach(t=>t.stop());return;}
+ fallbackStream=stream;
+ const video=document.getElementById('fallbackVideo');video.srcObject=stream;
+ await video.play();if(generation!==fallbackGeneration)return;
+ fallbackMessage('Camera HD pronta. Seleziona Camera HD come sorgente di attesa.');
+ stream.getVideoTracks()[0].addEventListener('ended',()=>{if(generation!==fallbackGeneration)return;stopFallbackCamera();fallbackMessage('Camera HD scollegata: uso della grafica GND.');});
+ displayFallback(fallbackActive);
+ }catch(e){if(generation!==fallbackGeneration)return;stopFallbackCamera();fallbackMessage('HD non disponibile: '+e.message+'. Uso della grafica GND.');}
+}
+document.getElementById('fallbackRefresh').addEventListener('click',refreshFallbackCameras);
+document.getElementById('fallbackStart').addEventListener('click',startFallbackCamera);
+document.getElementById('fallbackStop').addEventListener('click',stopFallbackCamera);
+document.getElementById('fallbackMode').addEventListener('change',()=>displayFallback(fallbackActive));
+document.getElementById('fallbackCamera').addEventListener('change',stopFallbackCamera);
+document.getElementById('fallbackVideo').addEventListener('error',()=>{stopFallbackCamera();fallbackMessage('Errore video HD: uso della grafica GND.');});
+
+</script>
+
+<script>
+(()=>{
+
+const serverInput = document.getElementById("rh_serverInput");
+const connectBtn = document.getElementById("rh_connectBtn");
+const disconnectBtn = document.getElementById("rh_disconnectBtn");
+const requestBtn = document.getElementById("rh_requestBtn");
+const statusEl = document.getElementById("rh_status");
+const rawLog = document.getElementById("rh_rawLog");
+const clearBtn = document.getElementById("rh_clearBtn");
+const copyBtn = document.getElementById("rh_copyBtn");
+
+const nodeEls = [
+  document.getElementById("rh_node0"),
+  document.getElementById("rh_node1"),
+  document.getElementById("rh_node2"),
+  document.getElementById("rh_node3")
+];
+
+let socket = null;
+let connectionGeneration = 0;
+let logLines = [];
+let latestLapsLog = '';
+const telemetryEvents = new Set(['EVENT heartbeat', 'node_data', 'EVENT cluster_status', 'environmental_data']);
+
+serverInput.value =
+  localStorage.getItem("gndRhDiagServer") ||
+  "http://192.168.1.227";
+
+function setStatus(text,type=""){
+  statusEl.textContent = text;
+  document.getElementById('rh_liveState').textContent = text;
+  nodeEls.forEach(el=>el.parentElement.classList.toggle('rh-stale', type !== 'ok'));
+  statusEl.classList.remove("ok","error");
+
+  if(type){
+    statusEl.classList.add(type);
+  }
+}
+
+function addLog(label,data){
+  // Frequent telemetry must not evict timing data from the diagnostic log.
+  if(telemetryEvents.has(label)) return;
+  const now = new Date().toLocaleTimeString("it-IT");
+
+  let body;
+
+  try{
+    body = JSON.stringify(data,null,2);
+  }catch(e){
+    body = String(data);
+  }
+
+  if(label === 'current_laps'){
+    latestLapsLog = '[' + now + '] current_laps\n' + body;
+  }
+
+  logLines.push(
+    `[${now}] ${label}\n${body}\n`
+  );
+
+  if(logLines.length > 120){
+    logLines = logLines.slice(-120);
+  }
+
+  rawLog.textContent = logLines.join("\n");
+  rawLog.scrollTop = rawLog.scrollHeight;
+}
+
+function normalizeServer(value){
+  let v = String(value || "").trim();
+
+  if(!v) return "";
+
+  if(!/^https?:\/\//i.test(v)){
+    v = "http://" + v;
+  }
+
+  return v.replace(/\/+$/,"");
+}
+
+function loadScript(src){
+  return new Promise((resolve,reject)=>{
+    let done = false;
+
+    const timer = setTimeout(()=>{
+      if(done) return;
+      done = true;
+      reject(new Error(`Timeout caricamento ${src}`));
+    },7000);
+
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.crossOrigin = "anonymous";
+
+    script.onload = ()=>{
+      if(done) return;
+      done = true;
+      clearTimeout(timer);
+      resolve();
+    };
+
+    script.onerror = ()=>{
+      if(done) return;
+      done = true;
+      clearTimeout(timer);
+      reject(new Error(`Errore caricamento ${src}`));
+    };
+
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureSocketIo(){
+  if(window.io) return;
+
+  const sources = [
+    "https://cdn.socket.io/4.7.5/socket.io.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"
+  ];
+
+  let lastError = null;
+
+  for(const src of sources){
+    try{
+      setStatus("Caricamento libreria Socket.IO...");
+      await loadScript(src);
+
+      if(window.io){
+        return;
+      }
+    }catch(err){
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error("Socket.IO non disponibile.");
+}
+
+// RotorHazard current_laps: current.node_index is indexed by receiver seat.
+function renderTimingValues(el, laps, last, best){
+  const values = el.querySelectorAll('b');
+  [laps,last,best].forEach((value,index)=>{values[index].textContent = value;});
+}
+
+function secondsFromLap(lap){
+  // Older servers use lap_raw (ms) and lap_time (formatted text).
+  // Newer servers use lap_time (ms) and lap_time_formatted (text).
+  for(const key of ['lap_raw', 'lap_time']){
+    const value = lap[key];
+    if(typeof value !== 'number' && typeof value !== 'string') continue;
+    if(typeof value === 'string' && !/^\d+(?:\.\d+)?$/.test(value.trim())) continue;
+    const milliseconds = Number(value);
+    if(Number.isFinite(milliseconds) && milliseconds >= 0) return milliseconds / 1000;
+  }
+  for(const value of [lap.lap_time_formatted, lap.lap_time]){
+    if(typeof value !== 'string') continue;
+    const match = value.trim().replace(',', '.').match(/^(?:(\d+):)?(\d+(?:\.\d+)?)$/);
+    if(match) return Number(match[1] || 0)*60 + Number(match[2]);
+  }
+  return NaN;
+}
+
+function qualificationStats(node){
+  const laps = Array.isArray(node?.laps) ? node.laps : [];
+  let run=[], best3=null, last3=null, fastest=null, last=null, count=0, range='';
+  for(const lap of laps){
+    const n=Number(lap?.lap_number), t=lap ? secondsFromLap(lap) : NaN;
+    if(!lap || lap.deleted || lap.invalid || lap.late_lap || !Number.isInteger(n) || n<=0 || !Number.isFinite(t) || t<0){run=[];last3=null;continue;}
+    count++;last=t;fastest=fastest===null?t:Math.min(fastest,t);
+    if(run.length && n!==run[run.length-1].n+1) run=[];
+    run.push({n,t});if(run.length>3)run.shift();
+    last3=run.length===3?run.reduce((sum,x)=>sum+x.t,0):null;
+    if(last3!==null && (best3===null || last3<best3)){best3=last3;range='G'+run[0].n+'–G'+n;}
+  }
+  return {count,last,fastest,best3,last3,range,progress:run.length};
+}
+function renderQualification(stats){
+  latestValidLapCounts=stats.map(s=>s.count);
+  updateRaceProgress();
+  const ms=t=>Math.round(t*1000);
+  const valid=stats.filter(s=>s.best3!==null);
+  const fast=stats.filter(s=>s.fastest!==null).map(s=>ms(s.fastest));
+  const fastest=fast.length?Math.min(...fast):null;
+  const fmt=t=>t===null?'--':t.toFixed(3)+' s';
+  nodeEls.forEach((el,i)=>{
+    const s=stats[i];
+    const put=(key,value)=>{el.querySelector('[data-value="'+key+'"]').textContent=value;};
+    put('single',fmt(s.fastest));put('laps',s.count);put('last',fmt(s.last));put('best3',s.best3===null?s.progress+'/3 giri':fmt(s.best3));
+    put('range',s.range || 'In attesa del terzetto');put('last3',fmt(s.last3));
+    put('delta',s.last3===null || s.best3===null?'--':'+'+((ms(s.last3)-ms(s.best3))/1000).toFixed(3)+' s');
+    put('rank',s.best3===null?'--':(1+valid.filter(v=>ms(v.best3)<ms(s.best3)).length)+'°');
+    const isFast=fastest!==null && s.fastest!==null && ms(s.fastest)===fastest;
+    el.querySelector('.rh-fastest').hidden=!isFast;
+    el.querySelector('.rh-fastest').title=isFast?'Miglior giro tra i quattro: '+fmt(s.fastest):'';
+    el.querySelector('.rh-best3').title=s.range || 'In attesa di tre giri consecutivi';
+    put('fastest',isFast?fmt(s.fastest):'');
+    el.querySelector('.rh-delta').classList.toggle('rh-record',s.last3!==null && s.best3!==null && ms(s.last3)===ms(s.best3));
+  });
+}
+function extractTimes(payload){
+  if(typeof payload==='string'){try{payload=JSON.parse(payload);}catch(e){addLog('DIAGNOSTICA','JSON current_laps non valido');return;}}
+  const current=payload && Object.prototype.hasOwnProperty.call(payload,'current')?payload.current:payload;
+  if(!Array.isArray(current?.node_index)){addLog('DIAGNOSTICA','Formato current_laps non riconosciuto');return;}
+  renderQualification(nodeEls.map((_,i)=>qualificationStats(current.node_index[i])));
+}
+
+function handleEvent(name,data){
+  addLog(name,data);
+  // Only the current lap snapshot updates timing cards. Archived results and
+  // leaderboards have different schemas and must not overwrite these values.
+  if(name === 'current_laps') extractTimes(data);
+}
+
+function requestData(){
+  if(!socket || !socket.connected){
+    setStatus("Non connesso a RotorHazard.","error");
+    return;
+  }
+
+  addLog("OUT load_data",{
+    load_types:[
+      "current_laps",
+      "race_status"
+    ]
+  });
+
+  socket.emit("load_data",{
+    load_types:[
+      "current_laps",
+      "race_status"
+    ]
+  });
+}
+
+async function connect(){
+  const base = normalizeServer(serverInput.value);
+
+  if(!base){
+    setStatus("Inserisci un indirizzo RotorHazard.","error");
+    return;
+  }
+
+  serverInput.value = base;
+  localStorage.setItem("gndRhDiagServer",base);
+
+  disconnect(false);
+  renderQualification(nodeEls.map(()=>qualificationStats(null)));
+  latestLapsLog = "";
+
+  const generation = connectionGeneration;
+  try{
+    await ensureSocketIo();
+    if(generation !== connectionGeneration) return;
+
+    setStatus(`Connessione a ${base}...`);
+
+    socket = window.io(base,{
+      transports:["polling","websocket"],
+      upgrade:true,
+      timeout:8000,
+      reconnection:true,
+      reconnectionAttempts:5
+    });
+
+    socket.on("connect",()=>{
+      setStatus(`Connesso a ${base}`,"ok");
+      addLog("CONNECTED",{
+        id:socket.id,
+        server:base
+      });
+
+      requestData();
+    });
+
+    socket.on("connect_error",err=>{
+      setStatus(
+        `Errore connessione: ${err?.message || err}`,
+        "error"
+      );
+      addLog("connect_error",{
+        message:err?.message || String(err)
+      });
+    });
+
+    socket.on("disconnect",reason=>{
+      setStatus(`Disconnesso: ${reason}`,"error");
+      addLog("disconnect",reason);
+    });
+
+    const events = [
+      "current_laps",
+      "race_status",
+      "leaderboard",
+      "current_heat",
+      "result_data",
+      "heat_data",
+      "frequency_data",
+      "node_data",
+      "environmental_data"
+    ];
+
+    events.forEach(name=>{
+      socket.on(name,data=>{
+        handleEvent(name,data);
+      });
+    });
+
+    // Useful when server uses unexpected event names.
+    if(typeof socket.onAny === "function"){
+      socket.onAny((eventName,...args)=>{
+        if(events.includes(eventName)){
+          return;
+        }
+
+        addLog(`EVENT ${eventName}`,
+          args.length === 1 ? args[0] : args
+        );
+      });
+    }
+
+  }catch(err){
+    console.error(err);
+
+    setStatus(
+      err.message || String(err),
+      "error"
+    );
+
+    addLog("ERROR",{
+      message:err.message || String(err)
+    });
+  }
+}
+
+function disconnect(updateUi=true){
+  connectionGeneration++;
+  if(socket){
+    try{
+      socket.removeAllListeners();
+      socket.disconnect();
+    }catch(e){}
+  }
+
+  socket = null;
+
+  if(updateUi){
+    setStatus("Non connesso.");
+  }
+}
+
+connectBtn.addEventListener("click",connect);
+disconnectBtn.addEventListener("click",()=>disconnect(true));
+requestBtn.addEventListener("click",requestData);
+
+clearBtn.addEventListener("click",()=>{
+  logLines = [];
+  rawLog.textContent = "Log pulito.";
+});
+
+copyBtn.addEventListener("click",async ()=>{
+  try{
+    await navigator.clipboard.writeText(
+      'GND Timing Diagnostic v4\n\nULTIMO current_laps RICEVUTO\n' +
+      (latestLapsLog || 'Nessun current_laps ricevuto: premi Richiedi Dati dopo la connessione.') +
+      '\n\nLOG EVENTI\n' + rawLog.textContent
+    );
+
+    setStatus("Log copiato negli appunti.","ok");
+  }catch(err){
+    setStatus(
+      "Impossibile copiare automaticamente il log.",
+      "error"
+    );
+  }
+});
+
+})();
+</script>
+<script>
+(()=>{
+  const button=document.getElementById("popoutFeedsBtn");
+  let feedWindow=null;
+  if(!button)return;
+  button.addEventListener("click",()=>{
+    if(feedWindow&&!feedWindow.closed){feedWindow.focus();return;}
+    feedWindow=window.open("about:blank","racecontrol-live-feeds","popup,width=1440,height=900,resizable=yes");
+    if(!feedWindow){alert("La finestra è stata bloccata dal browser. Consenti i popup per aprire i feed separati.");return;}
+    const doc=feedWindow.document;
+    doc.open();
+    doc.write("<!doctype html><html lang='it'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>C:\\GND\\RACECONTROL · Live feeds</title></head><body><div class='popout-heat'></div><main class='video-grid feed-popout-grid'></main><div class='popout-progress-wrap'></div><video class='popout-hd' autoplay playsinline muted></video></body></html>");
+    doc.close();
+    const base=doc.createElement("base");base.href=new URL(".",location.href).href;doc.head.prepend(base);
+    document.querySelectorAll("style,link[rel='stylesheet']").forEach(node=>{
+      const copy=node.cloneNode(true);
+      if(copy.tagName==="LINK")copy.href=new URL(copy.getAttribute("href"),location.href).href;
+      doc.head.appendChild(copy);
+    });
+    const style=doc.createElement("style");
+    style.textContent=`html,body{width:100%;height:100%;margin:0;overflow:hidden!important;background:#050609!important;color:#f5f7f8!important}body{position:relative;display:grid;grid-template-rows:minmax(0,1fr) auto}.feed-popout-grid{position:relative!important;inset:auto!important;width:100%!important;height:100%!important;min-height:0!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:7px!important;padding:8px!important;background:#050609!important;overflow:hidden!important}.feed-popout-grid .feed-card{position:relative!important;display:block!important;width:auto!important;height:auto!important;min-width:0!important;min-height:0!important;margin:0!important;overflow:hidden!important;border:1px solid #40d8ff77!important;border-radius:4px!important;background:#080b0e!important}.feed-popout-grid .feed-view,.feed-popout-grid canvas{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important}.feed-popout-grid .feed-label{display:block!important}.feed-popout-grid .pilot-overlay{display:flex!important}.feed-popout-grid .placeholder{display:block}.popout-heat{position:fixed;top:12px;right:14px;z-index:99;padding:6px 10px;border:1px solid #ffd400;background:#050609eF;color:#ffd400;font:800 11px/1.2 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;pointer-events:none}.popout-hd{display:none;position:fixed;inset:0;width:100vw;height:100vh;object-fit:contain;background:#050609;z-index:10}.popout-hd.visible{display:block}@media(max-aspect-ratio:1/1){.feed-popout-grid{grid-template-columns:1fr!important;grid-template-rows:repeat(4,minmax(0,1fr))!important}}`;
+    doc.head.appendChild(style);
+    const grid=doc.querySelector(".feed-popout-grid");const progressWrap=doc.querySelector(".popout-progress-wrap");
+    const sourceHud=document.getElementById("raceProgressHud");const popupHud=sourceHud?sourceHud.cloneNode(true):null;if(popupHud){popupHud.removeAttribute("id");popupHud.classList.add("popout-race-progress");popupHud.style.setProperty("position","relative","important");popupHud.style.setProperty("top","auto","important");popupHud.style.setProperty("left","auto","important");popupHud.style.setProperty("transform","none","important");popupHud.style.setProperty("width","100%","important");popupHud.style.setProperty("margin","0","important");}
+    const targetCards=[];
+    document.querySelectorAll(".feed-card").forEach(source=>{
+      const copy=source.cloneNode(true);
+      copy.querySelectorAll("[id]").forEach(node=>node.removeAttribute("id"));
+      copy.querySelector("canvas")?.removeAttribute("id");
+      const targetCanvas=doc.createElement("canvas");
+      targetCanvas.className="feed-mirror";
+      const oldCanvas=copy.querySelector("canvas");
+      if(oldCanvas)oldCanvas.replaceWith(targetCanvas);
+      grid.appendChild(copy);targetCards.push(copy);
+    });
+    if(popupHud&&progressWrap)progressWrap.appendChild(popupHud);
+    const hdVideo=doc.querySelector(".popout-hd");
+    const heat=doc.querySelector(".popout-heat");
+    const sync=()=>{
+      if(feedWindow.closed)return;
+      const sources=[...document.querySelectorAll(".feed-card")];
+      sources.forEach((source,index)=>{
+        const target=targetCards[index];if(!target)return;
+        target.className=source.className;
+        [".feed-label",".signal-overlay",".pilot-overlay",".race-progress",".placeholder"].forEach(selector=>{
+          const from=source.querySelector(selector),to=target.querySelector(selector);
+          if(from&&to){to.className=from.className;to.innerHTML=from.innerHTML;to.hidden=from.hidden;}
+        });
+        const fromCanvas=source.querySelector("canvas"),toCanvas=target.querySelector("canvas");
+        if(fromCanvas&&toCanvas&&fromCanvas.width&&fromCanvas.height){
+          if(toCanvas.width!==fromCanvas.width)toCanvas.width=fromCanvas.width;
+          if(toCanvas.height!==fromCanvas.height)toCanvas.height=fromCanvas.height;
+          try{toCanvas.getContext("2d").drawImage(fromCanvas,0,0,toCanvas.width,toCanvas.height);}catch(e){}
+        }
+      });
+      if(popupHud&&sourceHud)popupHud.innerHTML=sourceHud.innerHTML;
+      const sourceHeat=document.getElementById("heatDescriptionOverlay");heat.textContent=sourceHeat?.dataset.heatLabel||"GND · LIVE";
+      const sourceHd=document.getElementById("fallbackHd"),video=document.getElementById("fallbackVideo");
+      const useHd=sourceHd&&!sourceHd.hidden&&video?.srcObject;
+      grid.style.display=useHd?"none":"grid";hdVideo.classList.toggle("visible",!!useHd);
+      if(useHd&&hdVideo.srcObject!==video.srcObject){hdVideo.srcObject=video.srcObject;hdVideo.play().catch(()=>{});}
+    };
+    const timer=feedWindow.setInterval(sync,180);sync();
+    feedWindow.addEventListener("beforeunload",()=>feedWindow.clearInterval(timer));
+    feedWindow.addEventListener("keydown",event=>{if(event.key.toLowerCase()==="f"&&!event.ctrlKey&&!event.metaKey){if(!doc.fullscreenElement)doc.documentElement.requestFullscreen?.().catch(()=>{});else doc.exitFullscreen?.().catch(()=>{});}});
+  });
+})();
+</script>
+</body>
+</html>

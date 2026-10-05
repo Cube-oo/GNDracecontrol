@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C:\GND\RACECONTROL · GND Replay</title>
+
+<style>
+:root{
+  --blue:#005b96;
+  --navy:#001f3f;
+  --line:#d7e2ec;
+  --text:#102033;
+  --red:#d71920;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  width:100%;
+  min-height:100%;
+  margin:0;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(180deg,#fff 0%,#f3f7fb 100%);
+  color:var(--text);
+}
+
+.top-strip{
+  height:36px;
+  background:#172027;
+}
+
+header{
+  background:#fff;
+  border-bottom:1px solid #e5edf5;
+  box-shadow:0 8px 24px rgba(0,0,0,.06);
+}
+
+.header-inner{
+  padding:22px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.site-logo{
+  width:126px;
+  height:auto;
+}
+
+.brand-title small{
+  display:block;
+  color:var(--blue);
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:12px;
+  margin-bottom:4px;
+}
+
+.brand-title h1{
+  margin:0;
+  color:var(--navy);
+  font-size:26px;
+}
+
+.header-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+button,
+.file-button{
+  min-height:40px;
+  padding:0 16px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:var(--navy);
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  cursor:pointer;
+}
+
+button.primary,
+.file-button.primary{
+  background:var(--blue);
+  border-color:var(--blue);
+  color:#fff;
+}
+
+.file-button input{
+  display:none;
+}
+
+main{
+  padding:24px;
+}
+
+.replay-card{
+  width:min(1500px,100%);
+  margin:0 auto;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 14px 36px rgba(0,0,0,.08);
+}
+
+.replay-head{
+  min-height:58px;
+  padding:10px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:#090b0e;
+  border-bottom:3px solid var(--red);
+  color:#fff;
+}
+
+.replay-brand{
+  font-size:16px;
+  font-weight:900;
+  font-style:italic;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.replay-title{
+  min-width:0;
+  color:#fff;
+  font-size:15px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.video-stage{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  background:#000;
+  overflow:hidden;
+}
+
+#replayVideo{
+  width:100%;
+  height:100%;
+  display:block;
+  background:#000;
+  object-fit:contain;
+}
+
+.replay-badge{
+  position:absolute;
+  left:18px;
+  top:18px;
+  z-index:5;
+  padding:7px 13px;
+  background:var(--red);
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  font-style:italic;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  clip-path:polygon(8% 0,100% 0,92% 100%,0 100%);
+}
+
+.empty-message{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#8492a0;
+  font-size:15px;
+  font-weight:800;
+  pointer-events:none;
+}
+
+.video-stage.loaded .empty-message{
+  display:none;
+}
+
+.controls{
+  padding:16px;
+  background:#fff;
+}
+
+.timeline-row{
+  display:grid;
+  grid-template-columns:70px minmax(0,1fr) 70px;
+  gap:10px;
+  align-items:center;
+}
+
+.time-label{
+  text-align:center;
+  color:#526273;
+  font-size:12px;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+
+#timeline{
+  width:100%;
+}
+
+.control-row{
+  margin-top:14px;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.speed-row{
+  margin-top:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  color:#617080;
+  font-size:11px;
+  font-weight:800;
+}
+
+.speed-btn.active{
+  background:var(--navy);
+  border-color:var(--navy);
+  color:#fff;
+}
+
+.info{
+  margin-top:14px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:#f7fafc;
+  color:#657482;
+  font-size:11px;
+}
+
+footer{
+  padding:22px;
+  text-align:center;
+  color:#6d7b88;
+  font-size:12px;
+}
+
+/* Fullscreen replay */
+body.fullscreen-mode{
+  overflow:hidden;
+  background:#000;
+}
+
+body.fullscreen-mode .top-strip,
+body.fullscreen-mode header,
+body.fullscreen-mode footer,
+body.fullscreen-mode .controls{
+  display:none;
+}
+
+body.fullscreen-mode main{
+  padding:0;
+}
+
+body.fullscreen-mode .replay-card{
+  width:100vw;
+  height:100vh;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  background:#000;
+}
+
+body.fullscreen-mode .replay-head{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  z-index:20;
+  background:rgba(5,5,5,.92);
+}
+
+body.fullscreen-mode .video-stage{
+  width:100vw;
+  height:100vh;
+  aspect-ratio:auto;
+}
+
+@media(max-width:760px){
+  .header-inner{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  main{
+    padding:12px;
+  }
+
+  .timeline-row{
+    grid-template-columns:55px minmax(0,1fr) 55px;
+  }
+}
+</style>
+<link rel="stylesheet" href="racecontrol-theme.css">
+</head>
+
+<body>
+
+<div class="top-strip"></div>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      
+
+      <div class="brand-title">
+        <small>C:\GND\RACECONTROL</small>
+        <h1>GND Replay</h1>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <label class="file-button primary">
+        Apri Registrazione
+        <input id="videoFileInput"
+               type="file"
+               accept="video/webm,video/mp4,video/*">
+      </label>
+
+      <button id="fullscreenBtn">Fullscreen</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="replay-card">
+
+    <div class="replay-head">
+      <div class="replay-brand">GND · Replay</div>
+      <div id="fileTitle" class="replay-title">Nessuna registrazione caricata</div>
+    </div>
+
+    <div id="videoStage" class="video-stage">
+      <video id="replayVideo"
+             playsinline
+             preload="metadata"></video>
+
+      <div class="replay-badge">Replay</div>
+      <div class="empty-message">Apri una registrazione GND per iniziare</div>
+    </div>
+
+    <div class="controls">
+
+      <div class="timeline-row">
+        <div id="currentTime" class="time-label">00:00</div>
+        <input id="timeline"
+               type="range"
+               min="0"
+               max="1000"
+               value="0">
+        <div id="durationTime" class="time-label">00:00</div>
+      </div>
+
+      <div class="control-row">
+        <button id="back5Btn">−5 s</button>
+        <button id="playBtn" class="primary">Play</button>
+        <button id="pauseBtn">Pause</button>
+        <button id="forward5Btn">+5 s</button>
+        <button id="restartBtn">Restart</button>
+      </div>
+
+      <div class="speed-row">
+        Velocità:
+        <button class="speed-btn" data-speed="0.25">0.25×</button>
+        <button class="speed-btn" data-speed="0.5">0.5×</button>
+        <button class="speed-btn active" data-speed="1">1×</button>
+        <button class="speed-btn" data-speed="1.5">1.5×</button>
+        <button class="speed-btn" data-speed="2">2×</button>
+      </div>
+
+      <div class="info">
+        SPAZIO = Play/Pause · ←/→ = ±5 secondi · F = Fullscreen.
+        La pagina riproduce direttamente i file WebM generati da GND Live Video.
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+<footer>GND · Replay</footer>
+
+<script>
+const videoFileInput = document.getElementById("videoFileInput");
+const replayVideo = document.getElementById("replayVideo");
+const videoStage = document.getElementById("videoStage");
+const fileTitle = document.getElementById("fileTitle");
+
+const currentTimeEl = document.getElementById("currentTime");
+const durationTimeEl = document.getElementById("durationTime");
+const timeline = document.getElementById("timeline");
+
+const playBtn = document.getElementById("playBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const back5Btn = document.getElementById("back5Btn");
+const forward5Btn = document.getElementById("forward5Btn");
+const restartBtn = document.getElementById("restartBtn");
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+const speedButtons = [...document.querySelectorAll(".speed-btn")];
+
+let currentObjectUrl = null;
+let scrubbing = false;
+
+function fmt(sec){
+  if(!Number.isFinite(sec)) return "00:00";
+
+  const total = Math.max(0,Math.floor(sec));
+  const m = Math.floor(total/60);
+  const s = total%60;
+
+  return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+
+function loadVideoFile(file){
+  if(!file) return;
+
+  if(currentObjectUrl){
+    URL.revokeObjectURL(currentObjectUrl);
+  }
+
+  currentObjectUrl = URL.createObjectURL(file);
+
+  replayVideo.src = currentObjectUrl;
+  replayVideo.load();
+
+  fileTitle.textContent = file.name;
+  videoStage.classList.add("loaded");
+}
+
+videoFileInput.addEventListener("change",event=>{
+  loadVideoFile(event.target.files?.[0]);
+});
+
+replayVideo.addEventListener("loadedmetadata",()=>{
+  durationTimeEl.textContent = fmt(replayVideo.duration);
+  timeline.value = 0;
+});
+
+replayVideo.addEventListener("timeupdate",()=>{
+  if(scrubbing) return;
+
+  currentTimeEl.textContent = fmt(replayVideo.currentTime);
+
+  if(Number.isFinite(replayVideo.duration) && replayVideo.duration > 0){
+    timeline.value =
+      Math.round(
+        (replayVideo.currentTime/replayVideo.duration)*1000
+      );
+  }
+});
+
+timeline.addEventListener("input",()=>{
+  scrubbing = true;
+
+  if(Number.isFinite(replayVideo.duration)){
+    const t =
+      (parseInt(timeline.value,10)/1000) *
+      replayVideo.duration;
+
+    currentTimeEl.textContent = fmt(t);
+  }
+});
+
+timeline.addEventListener("change",()=>{
+  if(Number.isFinite(replayVideo.duration)){
+    replayVideo.currentTime =
+      (parseInt(timeline.value,10)/1000) *
+      replayVideo.duration;
+  }
+
+  scrubbing = false;
+});
+
+playBtn.addEventListener("click",()=>{
+  replayVideo.play();
+});
+
+pauseBtn.addEventListener("click",()=>{
+  replayVideo.pause();
+});
+
+back5Btn.addEventListener("click",()=>{
+  replayVideo.currentTime =
+    Math.max(0,replayVideo.currentTime-5);
+});
+
+forward5Btn.addEventListener("click",()=>{
+  replayVideo.currentTime =
+    Math.min(
+      replayVideo.duration || Infinity,
+      replayVideo.currentTime+5
+    );
+});
+
+restartBtn.addEventListener("click",()=>{
+  replayVideo.currentTime = 0;
+  replayVideo.play();
+});
+
+speedButtons.forEach(button=>{
+  button.addEventListener("click",()=>{
+    const speed = parseFloat(button.dataset.speed);
+
+    replayVideo.playbackRate = speed;
+
+    speedButtons.forEach(btn=>
+      btn.classList.remove("active")
+    );
+
+    button.classList.add("active");
+  });
+});
+
+async function toggleFullscreen(){
+  document.body.classList.toggle("fullscreen-mode");
+
+  if(document.body.classList.contains("fullscreen-mode")){
+    try{
+      if(!document.fullscreenElement){
+        await document.documentElement.requestFullscreen();
+      }
+    }catch(e){}
+  }else{
+    if(document.fullscreenElement){
+      try{ await document.exitFullscreen(); }catch(e){}
+    }
+  }
+}
+
+fullscreenBtn.addEventListener("click",toggleFullscreen);
+
+document.addEventListener("fullscreenchange",()=>{
+  if(!document.fullscreenElement){
+    document.body.classList.remove("fullscreen-mode");
+  }
+});
+
+document.addEventListener("keydown",event=>{
+  if(event.code === "Space"){
+    event.preventDefault();
+
+    if(replayVideo.paused){
+      replayVideo.play();
+    }else{
+      replayVideo.pause();
+    }
+    return;
+  }
+
+  if(event.key === "ArrowLeft"){
+    replayVideo.currentTime =
+      Math.max(0,replayVideo.currentTime-5);
+  }
+
+  if(event.key === "ArrowRight"){
+    replayVideo.currentTime =
+      Math.min(
+        replayVideo.duration || Infinity,
+        replayVideo.currentTime+5
+      );
+  }
+
+  if(event.key.toLowerCase() === "f"){
+    toggleFullscreen();
+  }
+});
+</script>
+
+</body>
+</html>

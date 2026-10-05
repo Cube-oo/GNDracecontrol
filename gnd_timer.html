@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C:\GND\RACECONTROL · GND · Diagnostica Timer</title>
+
+<style>
+:root{
+  --blue:#005b96;
+  --navy:#001f3f;
+  --line:#d7e2ec;
+  --green:#1d8f43;
+  --red:#b71c1c;
+  --bg:#f3f7fb;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  width:100%;
+  min-height:100%;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+  color:#102033;
+}
+
+.top-strip{
+  height:36px;
+  background:#172027;
+}
+
+header{
+  background:#fff;
+  border-bottom:1px solid #e5edf5;
+  box-shadow:0 8px 24px rgba(0,0,0,.06);
+}
+
+.header-inner{
+  padding:22px 28px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.logo{
+  width:126px;
+  height:auto;
+}
+
+.brand small{
+  display:block;
+  color:var(--blue);
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:12px;
+  margin-bottom:4px;
+}
+
+.brand h1{
+  margin:0;
+  color:var(--navy);
+  font-size:26px;
+}
+
+main{
+  padding:24px;
+}
+
+.panel{
+  max-width:1500px;
+  margin:0 auto 18px;
+  padding:16px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:0 10px 28px rgba(0,0,0,.06);
+}
+
+.panel h2{
+  margin:0 0 12px;
+  color:var(--navy);
+  font-size:18px;
+}
+
+.row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+input{
+  flex:1 1 360px;
+  min-height:42px;
+  padding:0 14px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:13px;
+}
+
+button{
+  min-height:42px;
+  padding:0 16px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:var(--navy);
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+
+button.primary{
+  background:var(--blue);
+  color:#fff;
+  border-color:var(--blue);
+}
+
+.status{
+  margin-top:12px;
+  padding:11px 12px;
+  border-radius:10px;
+  background:#f6f9fc;
+  color:#526273;
+  font-size:12px;
+  font-weight:800;
+}
+
+.status.ok{
+  background:#edf8ef;
+  color:var(--green);
+}
+
+.status.error{
+  background:#fff0f0;
+  color:var(--red);
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+
+.card{
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#f9fbfd;
+}
+
+.card strong{
+  display:block;
+  margin-bottom:7px;
+  color:var(--navy);
+  font-size:13px;
+}
+
+.value{
+  color:#4d5d6e;
+  font:12px/1.6 Consolas,Monaco,monospace;
+}
+
+.log-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+
+.log{
+  min-height:300px;
+  max-height:600px;
+  overflow:auto;
+  margin:0;
+  padding:12px;
+  border-radius:12px;
+  background:#0b1520;
+  color:#dce8f2;
+  font:11px/1.45 Consolas,Monaco,monospace;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+.event-list{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.event-pill{
+  padding:6px 9px;
+  border-radius:999px;
+  background:#edf3f8;
+  color:#405365;
+  font-size:11px;
+  font-weight:800;
+}
+
+footer{
+  padding:22px;
+  text-align:center;
+  color:#6d7b88;
+  font-size:12px;
+}
+
+@media(max-width:900px){
+  .cards{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+</style>
+<link rel="stylesheet" href="racecontrol-theme.css">
+<script>(()=>{const map={f9uRaceTargetLaps:"gndRaceTargetLaps",f9uHeatSheetId:"gndHeatSheetId",f9uRhDiagServer:"gndRhDiagServer",f9uSingleJudgeSheetId:"gndSingleJudgeSheetId",f9uSingleJudgeDecisions:"gndSingleJudgeDecisions"};for(const [oldKey,newKey] of Object.entries(map)){if(localStorage.getItem(newKey)===null){const value=localStorage.getItem(oldKey);if(value!==null)localStorage.setItem(newKey,value)}}})();</script>
+</head>
+
+<body>
+
+<div class="top-strip"></div>
+
+<header>
+  <div class="header-inner">
+    
+    <div class="brand">
+      <small>C:\GND\RACECONTROL</small>
+      <h1>Diagnostica Timer v4</h1>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="panel">
+    <h2>Connessione RotorHazard</h2>
+
+    <div class="row">
+      <input id="serverInput"
+             type="text"
+             placeholder="http://192.168.1.227">
+
+      <button id="connectBtn" class="primary">Connetti</button>
+      <button id="disconnectBtn">Disconnetti</button>
+      <button id="requestBtn">Richiedi Dati</button>
+    </div>
+
+    <div id="status" class="status">
+      Non connesso.
+    </div>
+
+    <div class="event-list">
+      <span class="event-pill">current_laps</span>
+      <span class="event-pill">race_status</span>
+      <span class="event-pill">leaderboard</span>
+      <span class="event-pill">current_heat</span>
+      <span class="event-pill">result_data</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Tempi della gara attuale</h2>
+    <p style="font-size:12px;color:#526273">Giri validi per nodo. Esclusi passaggio iniziale (giro 0), giri eliminati e tardivi. Tempi in secondi.</p>
+
+    <div class="cards">
+      <div class="card">
+        <strong>P1 / Node 1</strong>
+        <div class="value" id="node0">Laps: --<br>Last: --<br>Best: --</div>
+      </div>
+
+      <div class="card">
+        <strong>P2 / Node 2</strong>
+        <div class="value" id="node1">Laps: --<br>Last: --<br>Best: --</div>
+      </div>
+
+      <div class="card">
+        <strong>P3 / Node 3</strong>
+        <div class="value" id="node2">Laps: --<br>Last: --<br>Best: --</div>
+      </div>
+
+      <div class="card">
+        <strong>P4 / Node 4</strong>
+        <div class="value" id="node3">Laps: --<br>Last: --<br>Best: --</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="log-toolbar">
+      <h2 style="margin:0">Eventi / dati raw</h2>
+
+      <div class="row">
+        <button id="clearBtn">Pulisci Log</button>
+        <button id="copyBtn">Copia Log</button>
+      </div>
+    </div>
+
+    <p style="font-size:12px;color:#526273">Heartbeat e telemetria esclusi dal log. Copia Log include sempre l’ultimo current_laps ricevuto in questa connessione.</p>
+    <pre id="rawLog" class="log">In attesa di connessione...</pre>
+  </section>
+
+</main>
+
+<footer>GND · Diagnostica RotorHazard</footer>
+
+<script>
+const serverInput = document.getElementById("serverInput");
+const connectBtn = document.getElementById("connectBtn");
+const disconnectBtn = document.getElementById("disconnectBtn");
+const requestBtn = document.getElementById("requestBtn");
+const statusEl = document.getElementById("status");
+const rawLog = document.getElementById("rawLog");
+const clearBtn = document.getElementById("clearBtn");
+const copyBtn = document.getElementById("copyBtn");
+
+const nodeEls = [
+  document.getElementById("node0"),
+  document.getElementById("node1"),
+  document.getElementById("node2"),
+  document.getElementById("node3")
+];
+
+let socket = null;
+let logLines = [];
+let latestLapsLog = '';
+const telemetryEvents = new Set(['EVENT heartbeat', 'node_data', 'EVENT cluster_status', 'environmental_data']);
+
+serverInput.value =
+  localStorage.getItem("gndRhDiagServer") ||
+  "http://192.168.1.227";
+
+function setStatus(text,type=""){
+  statusEl.textContent = text;
+  statusEl.classList.remove("ok","error");
+
+  if(type){
+    statusEl.classList.add(type);
+  }
+}
+
+function addLog(label,data){
+  // Frequent telemetry must not evict timing data from the diagnostic log.
+  if(telemetryEvents.has(label)) return;
+  const now = new Date().toLocaleTimeString("it-IT");
+
+  let body;
+
+  try{
+    body = JSON.stringify(data,null,2);
+  }catch(e){
+    body = String(data);
+  }
+
+  if(label === 'current_laps'){
+    latestLapsLog = '[' + now + '] current_laps\n' + body;
+  }
+
+  logLines.push(
+    `[${now}] ${label}\n${body}\n`
+  );
+
+  if(logLines.length > 120){
+    logLines = logLines.slice(-120);
+  }
+
+  rawLog.textContent = logLines.join("\n");
+  rawLog.scrollTop = rawLog.scrollHeight;
+}
+
+function normalizeServer(value){
+  let v = String(value || "").trim();
+
+  if(!v) return "";
+
+  if(!/^https?:\/\//i.test(v)){
+    v = "http://" + v;
+  }
+
+  return v.replace(/\/+$/,"");
+}
+
+function loadScript(src){
+  return new Promise((resolve,reject)=>{
+    let done = false;
+
+    const timer = setTimeout(()=>{
+      if(done) return;
+      done = true;
+      reject(new Error(`Timeout caricamento ${src}`));
+    },7000);
+
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.crossOrigin = "anonymous";
+
+    script.onload = ()=>{
+      if(done) return;
+      done = true;
+      clearTimeout(timer);
+      resolve();
+    };
+
+    script.onerror = ()=>{
+      if(done) return;
+      done = true;
+      clearTimeout(timer);
+      reject(new Error(`Errore caricamento ${src}`));
+    };
+
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureSocketIo(){
+  if(window.io) return;
+
+  const sources = [
+    "https://cdn.socket.io/4.7.5/socket.io.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"
+  ];
+
+  let lastError = null;
+
+  for(const src of sources){
+    try{
+      setStatus("Caricamento libreria Socket.IO...");
+      await loadScript(src);
+
+      if(window.io){
+        return;
+      }
+    }catch(err){
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error("Socket.IO non disponibile.");
+}
+
+// RotorHazard current_laps: current.node_index is indexed by receiver seat.
+function secondsFromLap(lap){
+  // Older servers use lap_raw (ms) and lap_time (formatted text).
+  // Newer servers use lap_time (ms) and lap_time_formatted (text).
+  for(const key of ['lap_raw', 'lap_time']){
+    const value = lap[key];
+    if(typeof value !== 'number' && typeof value !== 'string') continue;
+    if(typeof value === 'string' && !/^\d+(?:\.\d+)?$/.test(value.trim())) continue;
+    const milliseconds = Number(value);
+    if(Number.isFinite(milliseconds) && milliseconds >= 0) return milliseconds / 1000;
+  }
+  for(const value of [lap.lap_time_formatted, lap.lap_time]){
+    if(typeof value !== 'string') continue;
+    const match = value.trim().replace(',', '.').match(/^(?:(\d+):)?(\d+(?:\.\d+)?)$/);
+    if(match) return Number(match[1] || 0)*60 + Number(match[2]);
+  }
+  return NaN;
+}
+
+function extractTimes(payload){
+  if(typeof payload === 'string'){
+    try{ payload = JSON.parse(payload); }catch(e){
+      addLog('DIAGNOSTICA', 'current_laps non contiene JSON valido.');
+      return;
+    }
+  }
+  const current = payload && Object.prototype.hasOwnProperty.call(payload, 'current')
+    ? payload.current : payload;
+  const nodes = current?.node_index;
+  if(!Array.isArray(nodes)){
+    addLog('DIAGNOSTICA', 'Formato current_laps non riconosciuto: atteso current.node_index. Copia il log per analizzarlo.');
+    return;
+  }
+  nodeEls.forEach((el,index)=>{
+    const node = nodes[index];
+    if(node && !Array.isArray(node.laps)){
+      addLog('DIAGNOSTICA', 'Lista giri non riconosciuta per il nodo ' + (index+1));
+      return;
+    }
+    const laps = (node?.laps || []).filter(lap => lap && !lap.deleted && !lap.invalid && !lap.late_lap &&
+      (lap.lap_number == null || Number(lap.lap_number) > 0));
+    const times = laps.map(secondsFromLap);
+    const valid = times.filter(time=>Number.isFinite(time) && time >= 0);
+    const last = times.length ? times[times.length-1] : NaN;
+    const best = valid.length ? Math.min(...valid) : NaN;
+    const format = value=>Number.isFinite(value) ? value.toFixed(3) + ' s' : '--';
+    el.style.whiteSpace = 'pre-line';
+    el.textContent = 'Laps: ' + laps.length + '\nLast: ' + format(last) + '\nBest: ' + format(best);
+    el.previousElementSibling.textContent = 'P' + (index+1) + ' / ' + (node?.pilot?.callsign || 'Node ' + (index+1));
+  });
+}
+
+function handleEvent(name,data){
+  addLog(name,data);
+  // Only the current lap snapshot updates timing cards. Archived results and
+  // leaderboards have different schemas and must not overwrite these values.
+  if(name === 'current_laps') extractTimes(data);
+}
+
+function requestData(){
+  if(!socket || !socket.connected){
+    setStatus("Non connesso a RotorHazard.","error");
+    return;
+  }
+
+  addLog("OUT load_data",{
+    load_types:[
+      "current_laps",
+      "race_status"
+    ]
+  });
+
+  socket.emit("load_data",{
+    load_types:[
+      "current_laps",
+      "race_status"
+    ]
+  });
+}
+
+async function connect(){
+  const base = normalizeServer(serverInput.value);
+
+  if(!base){
+    setStatus("Inserisci un indirizzo RotorHazard.","error");
+    return;
+  }
+
+  serverInput.value = base;
+  localStorage.setItem("gndRhDiagServer",base);
+
+  disconnect(false);
+  latestLapsLog = "";
+
+  try{
+    await ensureSocketIo();
+
+    setStatus(`Connessione a ${base}...`);
+
+    socket = window.io(base,{
+      transports:["polling","websocket"],
+      upgrade:true,
+      timeout:8000,
+      reconnection:true,
+      reconnectionAttempts:5
+    });
+
+    socket.on("connect",()=>{
+      setStatus(`Connesso a ${base}`,"ok");
+      addLog("CONNECTED",{
+        id:socket.id,
+        server:base
+      });
+
+      requestData();
+    });
+
+    socket.on("connect_error",err=>{
+      setStatus(
+        `Errore connessione: ${err?.message || err}`,
+        "error"
+      );
+      addLog("connect_error",{
+        message:err?.message || String(err)
+      });
+    });
+
+    socket.on("disconnect",reason=>{
+      setStatus(`Disconnesso: ${reason}`,"error");
+      addLog("disconnect",reason);
+    });
+
+    const events = [
+      "current_laps",
+      "race_status",
+      "leaderboard",
+      "current_heat",
+      "result_data",
+      "heat_data",
+      "frequency_data",
+      "node_data",
+      "environmental_data"
+    ];
+
+    events.forEach(name=>{
+      socket.on(name,data=>{
+        handleEvent(name,data);
+      });
+    });
+
+    // Useful when server uses unexpected event names.
+    if(typeof socket.onAny === "function"){
+      socket.onAny((eventName,...args)=>{
+        if(events.includes(eventName)){
+          return;
+        }
+
+        addLog(`EVENT ${eventName}`,
+          args.length === 1 ? args[0] : args
+        );
+      });
+    }
+
+  }catch(err){
+    console.error(err);
+
+    setStatus(
+      err.message || String(err),
+      "error"
+    );
+
+    addLog("ERROR",{
+      message:err.message || String(err)
+    });
+  }
+}
+
+function disconnect(updateUi=true){
+  if(socket){
+    try{
+      socket.removeAllListeners();
+      socket.disconnect();
+    }catch(e){}
+  }
+
+  socket = null;
+
+  if(updateUi){
+    setStatus("Non connesso.");
+  }
+}
+
+connectBtn.addEventListener("click",connect);
+disconnectBtn.addEventListener("click",()=>disconnect(true));
+requestBtn.addEventListener("click",requestData);
+
+clearBtn.addEventListener("click",()=>{
+  logLines = [];
+  rawLog.textContent = "Log pulito.";
+});
+
+copyBtn.addEventListener("click",async ()=>{
+  try{
+    await navigator.clipboard.writeText(
+      'GND Timing Diagnostic v4\n\nULTIMO current_laps RICEVUTO\n' +
+      (latestLapsLog || 'Nessun current_laps ricevuto: premi Richiedi Dati dopo la connessione.') +
+      '\n\nLOG EVENTI\n' + rawLog.textContent
+    );
+
+    setStatus("Log copiato negli appunti.","ok");
+  }catch(err){
+    setStatus(
+      "Impossibile copiare automaticamente il log.",
+      "error"
+    );
+  }
+});
+</script>
+
+</body>
+</html>

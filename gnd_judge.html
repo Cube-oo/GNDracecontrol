@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C:\GND\RACECONTROL · GND Judge</title>
+
+<style>
+:root{
+  --blue:#005b96;
+  --navy:#001f3f;
+  --line:#d7e2ec;
+  --text:#102033;
+  --green:#1f8a43;
+  --red:#b71c1c;
+  --orange:#c57900;
+  --purple:#6a3bb8;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  min-height:100%;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(180deg,#fff,#f3f7fb);
+  color:var(--text);
+}
+
+.top-strip{
+  height:36px;
+  background:#172027;
+}
+
+header{
+  background:#fff;
+  border-bottom:1px solid #e5edf5;
+  box-shadow:0 8px 24px rgba(0,0,0,.06);
+}
+
+.header-inner{
+  padding:22px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.logo{
+  width:126px;
+}
+
+.brand small{
+  display:block;
+  color:var(--blue);
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:12px;
+  margin-bottom:4px;
+}
+
+.brand h1{
+  margin:0;
+  color:var(--navy);
+  font-size:26px;
+}
+
+main{
+  padding:24px;
+}
+
+.panel{
+  max-width:1000px;
+  margin:0 auto 18px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:0 12px 32px rgba(0,0,0,.07);
+  overflow:hidden;
+}
+
+.panel-head{
+  padding:18px 20px;
+  background:linear-gradient(135deg,#152853,#203b78);
+  color:#fff;
+}
+
+.panel-head h2{
+  margin:0;
+  font-size:24px;
+  text-transform:uppercase;
+}
+
+.panel-head p{
+  margin:6px 0 0;
+  color:#d9e7f1;
+  font-size:13px;
+}
+
+.panel-body{
+  padding:18px;
+}
+
+.selector-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.selector-box label{
+  display:block;
+  margin-bottom:6px;
+  color:#596a79;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+select,
+input,
+textarea{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--text);
+  font-family:inherit;
+}
+
+select,input{
+  min-height:44px;
+  padding:0 12px;
+}
+
+textarea{
+  min-height:110px;
+  padding:11px;
+  resize:vertical;
+}
+
+.sheet-row{
+  margin-top:14px;
+  display:flex;
+  gap:8px;
+}
+
+.sheet-row input{
+  flex:1;
+}
+
+button{
+  min-height:42px;
+  padding:0 16px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:var(--navy);
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  cursor:pointer;
+}
+
+button.primary{
+  background:var(--blue);
+  border-color:var(--blue);
+  color:#fff;
+}
+
+button.success{
+  background:var(--green);
+  border-color:var(--green);
+  color:#fff;
+}
+
+.status-bar{
+  margin-top:10px;
+  padding:9px 11px;
+  border-radius:10px;
+  background:#f2f6f9;
+  color:#5c6b78;
+  font-size:11px;
+  font-weight:800;
+}
+
+.status-bar.ok{
+  background:#edf8ef;
+  color:var(--green);
+}
+
+.status-bar.error{
+  background:#fff0f0;
+  color:var(--red);
+}
+
+.heat-description{
+  margin-top:12px;
+  padding:10px 14px;
+  border-radius:12px;
+  background:#f5f8fb;
+  color:#526273;
+  font-size:13px;
+  font-weight:800;
+  text-align:center;
+}
+
+.pilot-card{
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+}
+
+.pilot-head{
+  display:grid;
+  grid-template-columns:100px minmax(0,1fr) 110px;
+  min-height:76px;
+  background:#0c1015;
+  color:#fff;
+  border-bottom:4px solid var(--blue);
+}
+
+.pilot-card.open .pilot-head{
+  border-bottom-color:#e3232a;
+}
+
+.slot{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#0a68b7;
+  font-size:28px;
+  font-weight:900;
+}
+
+.pilot-card.open .slot{
+  background:#b3131b;
+}
+
+.pilot-info{
+  min-width:0;
+  padding:12px 16px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.pilot-name{
+  font-size:24px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.pilot-id{
+  margin-top:5px;
+  color:#bac7d1;
+  font-size:12px;
+  font-weight:800;
+}
+
+.category{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-left:1px solid rgba(255,255,255,.1);
+  font-size:15px;
+  font-weight:900;
+}
+
+.pilot-body{
+  padding:18px;
+}
+
+.status-buttons{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;
+}
+
+.status-btn{
+  min-width:0;
+  min-height:46px;
+  border-radius:12px;
+  font-size:11px;
+}
+
+.status-btn.active[data-status="OK"]{
+  background:var(--green);
+  color:#fff;
+  border-color:var(--green);
+}
+
+.status-btn.active[data-status="DNF"],
+.status-btn.active[data-status="DNS"]{
+  background:var(--red);
+  color:#fff;
+  border-color:var(--red);
+}
+
+.status-btn.active[data-status="PENALTY"]{
+  background:var(--orange);
+  color:#fff;
+  border-color:var(--orange);
+}
+
+.status-btn.active[data-status="REFLIGHT"]{
+  background:var(--purple);
+  color:#fff;
+  border-color:var(--purple);
+}
+
+.note-label{
+  display:block;
+  margin:16px 0 7px;
+  color:#596a79;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.validation-row{
+  margin-top:16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.validation-info{
+  color:#657482;
+  font-size:12px;
+  font-weight:800;
+}
+
+.validated-badge{
+  display:none;
+  padding:7px 11px;
+  border-radius:999px;
+  background:#edf8ef;
+  color:var(--green);
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.validated-badge.show{
+  display:inline-flex;
+}
+
+footer{
+  padding:22px;
+  text-align:center;
+  color:#6d7b88;
+  font-size:12px;
+}
+
+@media(max-width:760px){
+  .selector-grid{
+    grid-template-columns:1fr;
+  }
+
+  .status-buttons{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .pilot-head{
+    grid-template-columns:80px minmax(0,1fr) 90px;
+  }
+
+  .header-inner{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+</style>
+<link rel="stylesheet" href="racecontrol-theme.css">
+<script>(()=>{const map={f9uRaceTargetLaps:"gndRaceTargetLaps",f9uHeatSheetId:"gndHeatSheetId",f9uRhDiagServer:"gndRhDiagServer",f9uSingleJudgeSheetId:"gndSingleJudgeSheetId",f9uSingleJudgeDecisions:"gndSingleJudgeDecisions"};for(const [oldKey,newKey] of Object.entries(map)){if(localStorage.getItem(newKey)===null){const value=localStorage.getItem(oldKey);if(value!==null)localStorage.setItem(newKey,value)}}})();</script>
+</head>
+
+<body>
+
+<div class="top-strip"></div>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      
+
+      <div>
+        <small>C:\GND\RACECONTROL</small>
+        <h1>GND Pilot Judge</h1>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Selezione Pilota</h2>
+    <p>Seleziona la heat e il singolo pilota da seguire.</p>
+  </div>
+
+  <div class="panel-body">
+
+    <div class="selector-grid">
+      <div class="selector-box">
+        <label>Heat</label>
+        <select id="heatSelect"></select>
+      </div>
+
+      <div class="selector-box">
+        <label>Pilota / Slot</label>
+        <select id="pilotSelect"></select>
+      </div>
+    </div>
+
+    <div id="heatDescription" class="heat-description">
+      Nessuna heat caricata
+    </div>
+
+    <div class="sheet-row">
+      <input id="sheetInput"
+             type="text"
+             placeholder="URL o ID Google Sheet">
+      <button id="loadHeatsBtn" class="primary">Carica Heat</button>
+    </div>
+
+    <div id="sheetStatus" class="status-bar">
+      A=Heat · B=Slot P1-P4 · C=Nome · D=ID · E=Categoria · F=Descrizione
+    </div>
+
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-body">
+
+    <article id="pilotCard" class="pilot-card">
+      <div class="pilot-head">
+        <div id="slotLabel" class="slot">P1</div>
+
+        <div class="pilot-info">
+          <div id="pilotName" class="pilot-name">Non assegnato</div>
+          <div id="pilotId" class="pilot-id">ID: --</div>
+        </div>
+
+        <div id="pilotCategory" class="category">--</div>
+      </div>
+
+      <div class="pilot-body">
+
+        <div class="status-buttons">
+          <button class="status-btn" data-status="OK">OK</button>
+          <button class="status-btn" data-status="DNF">DNF</button>
+          <button class="status-btn" data-status="DNS">DNS</button>
+          <button class="status-btn" data-status="PENALTY">Penalty</button>
+          <button class="status-btn" data-status="REFLIGHT">Reflight</button>
+        </div>
+
+        <label class="note-label">Note giudice</label>
+        <textarea id="judgeNote"
+                  placeholder="Annotazioni opzionali..."></textarea>
+
+        <div class="validation-row">
+          <div class="validation-info">
+            <span id="validationText">Pilota non validato</span>
+          </div>
+
+          <div>
+            <span id="validatedBadge" class="validated-badge">Validato</span>
+            <button id="validatePilotBtn" class="success">Valida Pilota</button>
+          </div>
+        </div>
+
+      </div>
+    </article>
+
+  </div>
+</section>
+
+</main>
+
+<footer>GND · Judge Piloti</footer>
+
+<script>
+const heatSelect = document.getElementById("heatSelect");
+const pilotSelect = document.getElementById("pilotSelect");
+const heatDescription = document.getElementById("heatDescription");
+const sheetInput = document.getElementById("sheetInput");
+const loadHeatsBtn = document.getElementById("loadHeatsBtn");
+const sheetStatus = document.getElementById("sheetStatus");
+
+const pilotCard = document.getElementById("pilotCard");
+const slotLabel = document.getElementById("slotLabel");
+const pilotName = document.getElementById("pilotName");
+const pilotId = document.getElementById("pilotId");
+const pilotCategory = document.getElementById("pilotCategory");
+
+const statusButtons = [...document.querySelectorAll(".status-btn")];
+const judgeNote = document.getElementById("judgeNote");
+const validatePilotBtn = document.getElementById("validatePilotBtn");
+const validatedBadge = document.getElementById("validatedBadge");
+const validationText = document.getElementById("validationText");
+
+let heats = [];
+let currentHeatIndex = 0;
+let currentPilotIndex = 0;
+
+let sheetId =
+  localStorage.getItem("gndSingleJudgeSheetId") ||
+  "1fNKQOTEUjQ17VSKYmlYhYHilcCtu-GrQT1q5Ym4Pw6o";
+
+let decisions =
+  JSON.parse(
+    localStorage.getItem("gndSingleJudgeDecisions") || "{}"
+  );
+
+sheetInput.value = sheetId;
+
+function norm(value){
+  return String(value ?? "")
+    .replace(/\u00A0/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function extractSheetId(value){
+  const text = norm(value);
+  const match =
+    text.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+
+  return match ? match[1] : text;
+}
+
+function setStatus(text,type=""){
+  sheetStatus.textContent = text;
+  sheetStatus.classList.remove("ok","error");
+
+  if(type){
+    sheetStatus.classList.add(type);
+  }
+}
+
+function gvizRows(table){
+  const rows=[];
+
+  if(table?.cols){
+    rows.push(
+      table.cols.map(c=>norm(c.label||c.id||""))
+    );
+  }
+
+  if(table?.rows){
+    table.rows.forEach(row=>{
+      rows.push(
+        (row.c||[]).map(c=>
+          c ? norm(c.f ?? c.v ?? "") : ""
+        )
+      );
+    });
+  }
+
+  return rows;
+}
+
+function loadSheetJSONP(id){
+  return new Promise((resolve,reject)=>{
+    const cb =
+      "gndSingleJudge_" +
+      Date.now() + "_" +
+      Math.floor(Math.random()*100000);
+
+    const script = document.createElement("script");
+    let done=false;
+
+    const cleanup=()=>{
+      try{delete window[cb]}catch(e){}
+      script.remove();
+    };
+
+    const timeout=setTimeout(()=>{
+      if(done)return;
+
+      done=true;
+      cleanup();
+      reject(new Error("Timeout caricamento Google Sheet."));
+    },10000);
+
+    window[cb]=response=>{
+      if(done)return;
+
+      done=true;
+      clearTimeout(timeout);
+
+      try{
+        if(!response){
+          throw new Error("Risposta vuota.");
+        }
+
+        if(response.status==="error"){
+          throw new Error(
+            response.errors?.[0]?.detailed_message ||
+            response.errors?.[0]?.message ||
+            "Errore Google Visualization."
+          );
+        }
+
+        resolve(gvizRows(response.table));
+        cleanup();
+
+      }catch(err){
+        cleanup();
+        reject(err);
+      }
+    };
+
+    script.onerror=()=>{
+      if(done)return;
+
+      done=true;
+      clearTimeout(timeout);
+      cleanup();
+      reject(new Error("Google Sheets non raggiungibile."));
+    };
+
+    const params=new URLSearchParams({
+      sheet:"HEAT",
+      tq:"select *",
+      tqx:`responseHandler:${cb}`
+    });
+
+    script.src=
+      `https://docs.google.com/spreadsheets/d/${encodeURIComponent(id)}/gviz/tq?${params}`;
+
+    document.head.appendChild(script);
+  });
+}
+
+function buildHeats(rows){
+  const map=new Map();
+
+  for(const row of rows){
+    const heatRaw=norm(row[0]).toUpperCase();
+    const slotRaw=norm(row[1]).toUpperCase();
+    const name=norm(row[2]);
+    const id=norm(row[3]);
+    const category=norm(row[4]).toUpperCase();
+    const description=norm(row[5]);
+
+    if(!/^(?:\d+|F\d+)$/i.test(heatRaw)){
+      continue;
+    }
+
+    if(!/^P[1-4]$/.test(slotRaw)){
+      continue;
+    }
+
+    const isFinal=heatRaw.startsWith("F");
+    const heatNumber=
+      parseInt(isFinal ? heatRaw.slice(1) : heatRaw,10);
+
+    const slotNumber=parseInt(slotRaw.slice(1),10);
+
+    if(!map.has(heatRaw)){
+      map.set(heatRaw,{
+        heat:heatRaw,
+        isFinal,
+        heatNumber,
+        description:description || "",
+        pilots:[null,null,null,null]
+      });
+    }
+
+    const heat=map.get(heatRaw);
+
+    if(!heat.description && description){
+      heat.description=description;
+    }
+
+    heat.pilots[slotNumber-1]={
+      slot:slotRaw,
+      name,
+      id,
+      category
+    };
+  }
+
+  return [...map.values()]
+    .sort((a,b)=>{
+      if(a.isFinal !== b.isFinal){
+        return a.isFinal ? 1 : -1;
+      }
+
+      return a.heatNumber-b.heatNumber;
+    });
+}
+
+function decisionKey(heat,pilotIndex){
+  return `${heat.heat}_${pilotIndex+1}`;
+}
+
+function getDecision(){
+  const heat=heats[currentHeatIndex];
+  const pilot=heat?.pilots[currentPilotIndex];
+
+  if(!heat || !pilot){
+    return null;
+  }
+
+  const key=decisionKey(heat,currentPilotIndex);
+
+  if(!decisions[key]){
+    decisions[key]={
+      heat:heat.heat,
+      description:heat.description || "",
+      slot:pilot.slot,
+      name:pilot.name,
+      id:pilot.id,
+      category:pilot.category,
+      status:"",
+      note:"",
+      validated:false,
+      validatedAt:null
+    };
+  }
+
+  const d=decisions[key];
+
+  d.heat=heat.heat;
+  d.description=heat.description || "";
+  d.slot=pilot.slot;
+  d.name=pilot.name;
+  d.id=pilot.id;
+  d.category=pilot.category;
+
+  return d;
+}
+
+function saveDecisions(){
+  localStorage.setItem(
+    "gndSingleJudgeDecisions",
+    JSON.stringify(decisions)
+  );
+}
+
+function renderSelectors(){
+  heatSelect.innerHTML="";
+
+  heats.forEach((heat,index)=>{
+    const opt=document.createElement("option");
+
+    opt.value=index;
+    opt.textContent=
+      heat.isFinal
+        ? `Eliminatorie · ${heat.heat}`
+        : `Heat ${heat.heat}`;
+
+    heatSelect.appendChild(opt);
+  });
+
+  heatSelect.value=currentHeatIndex;
+
+  renderPilotSelector();
+}
+
+function renderPilotSelector(){
+  const heat=heats[currentHeatIndex];
+
+  pilotSelect.innerHTML="";
+
+  if(!heat){
+    return;
+  }
+
+  heat.pilots.forEach((pilot,index)=>{
+    const opt=document.createElement("option");
+
+    opt.value=index;
+
+    opt.textContent=
+      pilot
+        ? `P${index+1} · ${pilot.name}`
+        : `P${index+1} · Non assegnato`;
+
+    pilotSelect.appendChild(opt);
+  });
+
+  pilotSelect.value=currentPilotIndex;
+}
+
+function renderPilot(){
+  const heat=heats[currentHeatIndex];
+
+  if(!heat){
+    return;
+  }
+
+  heatDescription.textContent=
+    heat.description || "Nessuna descrizione";
+
+  const pilot=heat.pilots[currentPilotIndex];
+
+  slotLabel.textContent=`P${currentPilotIndex+1}`;
+
+  if(!pilot){
+    pilotName.textContent="Non assegnato";
+    pilotId.textContent="ID: --";
+    pilotCategory.textContent="--";
+    pilotCard.classList.remove("open");
+
+    statusButtons.forEach(btn=>btn.classList.remove("active"));
+    judgeNote.value="";
+
+    return;
+  }
+
+  pilotName.textContent=pilot.name || "Non assegnato";
+  pilotId.textContent=`ID: ${pilot.id || "--"}`;
+  pilotCategory.textContent=pilot.category || "--";
+
+  pilotCard.classList.toggle(
+    "open",
+    pilot.category === "OPEN"
+  );
+
+  const decision=getDecision();
+
+  statusButtons.forEach(btn=>{
+    btn.classList.toggle(
+      "active",
+      btn.dataset.status === decision.status
+    );
+  });
+
+  judgeNote.value=decision.note || "";
+
+  if(decision.validated){
+    validatedBadge.classList.add("show");
+
+    validationText.textContent=
+      `Validato il ${new Date(decision.validatedAt).toLocaleString("it-IT")}`;
+  }else{
+    validatedBadge.classList.remove("show");
+    validationText.textContent="Pilota non validato";
+  }
+
+  saveDecisions();
+}
+
+function downloadJson(filename,data){
+  const blob=new Blob(
+    [JSON.stringify(data,null,2)],
+    {type:"application/json"}
+  );
+
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+
+  a.href=url;
+  a.download=filename;
+
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+
+statusButtons.forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const decision=getDecision();
+
+    if(!decision){
+      return;
+    }
+
+    decision.status=btn.dataset.status;
+    decision.validated=false;
+    decision.validatedAt=null;
+
+    saveDecisions();
+    renderPilot();
+  });
+});
+
+judgeNote.addEventListener("input",()=>{
+  const decision=getDecision();
+
+  if(!decision){
+    return;
+  }
+
+  decision.note=judgeNote.value;
+  decision.validated=false;
+  decision.validatedAt=null;
+
+  saveDecisions();
+
+  validatedBadge.classList.remove("show");
+  validationText.textContent="Modifiche non validate";
+});
+
+validatePilotBtn.addEventListener("click",()=>{
+  const heat=heats[currentHeatIndex];
+  const pilot=heat?.pilots[currentPilotIndex];
+  const decision=getDecision();
+
+  if(!heat || !pilot || !decision){
+    return;
+  }
+
+  if(!decision.status){
+    alert("Seleziona prima lo stato del pilota.");
+    return;
+  }
+
+  decision.validated=true;
+  decision.validatedAt=new Date().toISOString();
+
+  saveDecisions();
+  renderPilot();
+
+  downloadJson(
+    `heat_${heat.heat}_${pilot.slot}_${pilot.id || "pilot"}.json`,
+    decision
+  );
+});
+
+heatSelect.addEventListener("change",()=>{
+  currentHeatIndex=parseInt(heatSelect.value,10);
+
+  renderPilotSelector();
+  pilotSelect.value=currentPilotIndex;
+  renderPilot();
+});
+
+pilotSelect.addEventListener("change",()=>{
+  currentPilotIndex=parseInt(pilotSelect.value,10);
+  renderPilot();
+});
+
+async function loadHeats(){
+  const id=extractSheetId(sheetInput.value);
+
+  if(!id){
+    setStatus("Inserisci URL o ID Google Sheet.","error");
+    return;
+  }
+
+  sheetId=id;
+  sheetInput.value=id;
+
+  localStorage.setItem("gndSingleJudgeSheetId",id);
+
+  try{
+    setStatus("Caricamento heat...");
+
+    heats=
+      buildHeats(
+        await loadSheetJSONP(id)
+      );
+
+    if(!heats.length){
+      throw new Error("Nessuna heat valida trovata.");
+    }
+
+    currentHeatIndex=0;
+    currentPilotIndex=0;
+
+    setStatus(
+      `${heats.length} heat caricate dal tab HEAT.`,
+      "ok"
+    );
+
+    renderSelectors();
+    renderPilot();
+
+  }catch(err){
+    setStatus(
+      `Errore caricamento: ${err.message}`,
+      "error"
+    );
+  }
+}
+
+loadHeatsBtn.addEventListener("click",loadHeats);
+
+
+document.addEventListener("keydown",event=>{
+  if(
+    event.target instanceof HTMLInputElement ||
+    event.target instanceof HTMLTextAreaElement ||
+    event.target instanceof HTMLSelectElement
+  ){
+    return;
+  }
+
+  if(!heats.length){
+    return;
+  }
+
+  if(event.key === "ArrowLeft"){
+    event.preventDefault();
+
+    currentHeatIndex =
+      (currentHeatIndex - 1 + heats.length) % heats.length;
+
+    heatSelect.value=currentHeatIndex;
+    renderPilotSelector();
+    pilotSelect.value=currentPilotIndex;
+    renderPilot();
+  }
+
+  if(event.key === "ArrowRight"){
+    event.preventDefault();
+
+    currentHeatIndex =
+      (currentHeatIndex + 1) % heats.length;
+
+    heatSelect.value=currentHeatIndex;
+    renderPilotSelector();
+    pilotSelect.value=currentPilotIndex;
+    renderPilot();
+  }
+});
+
+
+loadHeats();
+</script>
+
+</body>
+</html>

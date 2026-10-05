@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C:\GND\RACECONTROL · GND Live Results</title>
+
+<style>
+:root{
+  --blue:#005b96;
+  --blue-dark:#003f73;
+  --navy:#001f3f;
+  --line:#d7e2ec;
+  --green:#dff5df;
+  --red-light:#fff0f0;
+  --text:#102033;
+  --pro:#203b78;
+  --open:#b71c1c;
+  --open-dark:#7f1010;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  width:100%;
+  max-width:100%;
+  margin:0;
+  overflow-x:hidden;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(180deg,#fff 0%,#f3f7fb 100%);
+  color:var(--text);
+}
+
+.top-strip{
+  height:36px;
+  background:#172027;
+}
+
+header{
+  width:100%;
+  background:#fff;
+  border-bottom:1px solid #e5edf5;
+  box-shadow:0 8px 24px rgba(0,0,0,.06);
+}
+
+.header-inner{
+  width:100%;
+  margin:0;
+  padding:24px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.site-logo{
+  width:126px;
+  height:auto;
+  display:block;
+}
+
+.brand-title small{
+  display:block;
+  color:var(--blue);
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:12px;
+  margin-bottom:4px;
+}
+
+.brand-title h1{
+  margin:0;
+  color:var(--navy);
+  font-size:26px;
+  line-height:1.1;
+}
+
+nav{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+nav a{
+  display:inline-flex;
+  align-items:center;
+  min-height:38px;
+  padding:0 13px;
+  color:#001c70;
+  text-decoration:none;
+  border:1px solid transparent;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  transition:.2s ease;
+}
+
+nav a:hover{
+  background:#f2f7fb;
+  border-color:var(--line);
+}
+
+nav a.active{
+  background:var(--blue);
+  border-color:var(--blue);
+  color:#fff;
+}
+
+nav a.nav-open.active{
+  background:var(--open);
+  border-color:var(--open);
+}
+
+nav a.nav-open:hover{
+  background:#fff2f2;
+  border-color:#efcaca;
+  color:#8e1515;
+}
+
+main{
+  width:100%;
+  margin:0;
+  padding:28px 28px 60px;
+}
+
+.view-section{
+  display:none;
+  width:100%;
+}
+
+.view-section.active{
+  display:block;
+}
+
+.hero{
+  width:100%;
+  color:#fff;
+  border-radius:20px;
+  padding:28px;
+  margin-bottom:24px;
+  box-shadow:0 18px 45px rgba(0,91,150,.22);
+}
+
+.hero.pro{
+  background:linear-gradient(135deg,#152853,var(--pro));
+}
+
+.hero.open{
+  background:linear-gradient(135deg,var(--open-dark),var(--open));
+}
+
+.hero h2{
+  margin:0 0 8px;
+  font-size:32px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.hero p{
+  margin:0;
+  color:#e2eff8;
+  font-size:15px;
+}
+
+.status-bar{
+  width:100%;
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  justify-content:space-between;
+  align-items:center;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px 16px;
+  margin-bottom:16px;
+  box-shadow:0 8px 24px rgba(0,0,0,.05);
+}
+
+.status-item{
+  font-size:13px;
+  color:#4a5b6c;
+}
+
+.status-item strong{
+  color:var(--blue);
+}
+
+#open-qualifications-view .status-item strong{
+  color:var(--open);
+}
+
+.legend{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  font-size:12px;
+  align-items:center;
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border-radius:999px;
+  padding:6px 10px;
+  border:1px solid var(--line);
+  background:#fff;
+}
+
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  display:inline-block;
+}
+
+.dot.green{background:#6fc36f}
+.dot.red{background:#ff9b9b}
+
+.table-card,.bracket-card{
+  width:100%;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 14px 36px rgba(0,0,0,.08);
+}
+
+.table-scroll{
+  width:100%;
+  overflow-x:auto;
+}
+
+.race-table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  font-size:13px;
+  min-width:1040px;
+}
+
+.race-table th{
+  background:var(--blue);
+  color:#fff;
+  padding:11px 8px;
+  text-align:center;
+  white-space:nowrap;
+  border-right:1px solid rgba(255,255,255,.25);
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+
+#open-qualifications-view .race-table th{
+  background:var(--open);
+}
+
+.race-table td{
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:8px 7px;
+  text-align:center;
+  white-space:nowrap;
+  background:inherit;
+}
+
+.race-table tr.qualified{background:var(--green)}
+.race-table tr.eliminated{background:var(--red-light)}
+.race-table tr:hover{background:#dceeff}
+
+.position,.best-time{
+  font-weight:800;
+  color:var(--blue);
+}
+
+#open-qualifications-view .position,
+#open-qualifications-view .best-time,
+#open-qualifications-view .pilot-id{
+  color:var(--open);
+}
+
+.pilot-name{
+  font-weight:700;
+  text-align:left!important;
+}
+
+.pilot-id{
+  font-weight:700;
+  color:#0b4f88;
+}
+
+.sticky-col-1{
+  position:sticky;
+  left:0;
+  z-index:3;
+  min-width:54px;
+}
+
+.sticky-col-2{
+  position:sticky;
+  left:54px;
+  z-index:3;
+  min-width:185px;
+}
+
+.sticky-col-3{
+  position:sticky;
+  left:239px;
+  z-index:3;
+  min-width:95px;
+}
+
+.sticky-col-4{
+  position:sticky;
+  left:334px;
+  z-index:3;
+  min-width:90px;
+}
+
+th.sticky-col-1,
+th.sticky-col-2,
+th.sticky-col-3,
+th.sticky-col-4{
+  z-index:7;
+  background:var(--blue-dark);
+}
+
+#open-qualifications-view th.sticky-col-1,
+#open-qualifications-view th.sticky-col-2,
+#open-qualifications-view th.sticky-col-3,
+#open-qualifications-view th.sticky-col-4{
+  background:#8e1515;
+}
+
+td.sticky-col-1,
+td.sticky-col-2,
+td.sticky-col-3,
+td.sticky-col-4{
+  box-shadow:4px 0 8px rgba(0,0,0,.04);
+}
+
+.loading,.error{
+  padding:32px;
+  color:var(--blue);
+  font-weight:700;
+}
+
+.error{
+  color:#b00020;
+}
+
+.bracket-card{
+  padding:18px;
+  overflow-x:auto;
+}
+
+.bracket-note{
+  margin:0 0 14px;
+  color:#4a5b6c;
+  font-size:14px;
+}
+
+.bracket-viewport{
+  position:relative;
+  background:linear-gradient(180deg,#fff 0%,#f8fbfe 100%);
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+}
+
+.bracket-lines{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+}
+
+.bracket-lines path{
+  stroke:#667789;
+  stroke-width:2;
+  fill:none;
+  opacity:.7;
+}
+
+.stage-title{
+  position:absolute;
+  height:28px;
+  line-height:28px;
+  padding:0 12px;
+  border:1px solid #8c96a3;
+  background:#f1efe8;
+  color:var(--navy);
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+  text-align:center;
+  z-index:3;
+}
+
+#open-elimination-view .stage-title{
+  color:#5d0d0d;
+  border-color:#b67a7a;
+  background:#f7eeee;
+}
+
+.lower-title{
+  position:absolute;
+  height:22px;
+  line-height:22px;
+  border:1px solid #8c96a3;
+  background:#d7d7d7;
+  color:#111;
+  font-size:11px;
+  font-weight:800;
+  text-align:center;
+  text-transform:uppercase;
+  z-index:3;
+}
+
+.heat-card{
+  position:absolute;
+  width:380px;
+  border:1px solid #7d8792;
+  background:#fff;
+  z-index:4;
+  box-shadow:0 8px 18px rgba(0,0,0,.08);
+}
+
+.heat-title{
+  display:grid;
+  grid-template-columns:80px 1fr;
+  min-height:30px;
+  border-bottom:1px solid #7d8792;
+  background:#f1efe8;
+}
+
+.heat-label{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px;
+  font-weight:800;
+  font-size:12px;
+  color:var(--navy);
+  border-right:1px solid #7d8792;
+}
+
+#open-elimination-view .heat-label{
+  color:#5d0d0d;
+}
+
+.heat-meta{
+  display:grid;
+  grid-template-columns:1fr 40px;
+  align-items:center;
+  gap:2px;
+  padding:3px 6px;
+  color:#4d5d6e;
+  font-size:10px;
+  font-weight:700;
+}
+
+.heat-row{
+  display:grid;
+  grid-template-columns:180px 160px 40px;
+  min-height:26px;
+  border-bottom:1px solid #cbd6e0;
+  background:#fff;
+  font-size:11px;
+}
+
+.heat-row:last-child{border-bottom:0}
+
+.heat-row .name,
+.heat-row .pid,
+.heat-row .rank{
+  display:flex;
+  align-items:center;
+  padding:3px 5px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.heat-row .name{
+  font-weight:700;
+  color:var(--text);
+}
+
+.heat-row .pid{
+  justify-content:center;
+  color:#0b4f88;
+  font-weight:700;
+  border-left:1px solid #cbd6e0;
+}
+
+.heat-row .rank{
+  justify-content:center;
+  color:#4a5b6c;
+  border-left:1px solid #cbd6e0;
+}
+
+.heat-row.rank-1{background:#eef9ee}
+
+.heat-row.rank-1 .rank,
+.heat-row.rank-2 .rank{
+  color:var(--blue);
+  font-weight:800;
+}
+
+#open-elimination-view .heat-row.rank-1 .rank,
+#open-elimination-view .heat-row.rank-2 .rank{
+  color:var(--open);
+}
+
+.heat-card.final-card{
+  width:520px;
+}
+
+.heat-card.final-card .heat-meta{
+  grid-template-columns:160px 40px 40px 40px 40px;
+}
+
+.heat-card.final-card .heat-row{
+  grid-template-columns:180px 160px 45px 45px 45px 45px;
+}
+
+.heat-card.final-card .ace-rank{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:3px 5px;
+  color:#4a5b6c;
+  border-left:1px solid #cbd6e0;
+}
+
+.placeholder{
+  color:#8a99a8!important;
+  font-weight:500!important;
+  font-style:italic;
+}
+
+footer{
+  text-align:center;
+  padding:28px 20px;
+  color:#6d7b88;
+  font-size:12px;
+}
+
+@media(max-width:780px){
+  .header-inner{
+    align-items:flex-start;
+    flex-direction:column;
+    padding:18px 12px;
+  }
+
+  nav{
+    justify-content:flex-start;
+  }
+
+  nav a{
+    font-size:11px;
+    padding:0 10px;
+  }
+
+  main{
+    padding:16px 10px 36px;
+  }
+
+  .hero h2{
+    font-size:24px;
+  }
+
+  .brand-title h1{
+    font-size:20px;
+  }
+
+  .site-logo{
+    width:104px;
+  }
+
+  .bracket-card{
+    padding:10px;
+  }
+}
+</style>
+<link rel="stylesheet" href="racecontrol-theme.css">
+</head>
+
+<body>
+
+<div class="top-strip"></div>
+
+<header>
+  <div class="header-inner">
+
+    <div class="brand">
+      
+
+      <div class="brand-title">
+        <small>Live timing</small>
+        <h1>GND Live Results</h1>
+      </div>
+    </div>
+
+    <nav>
+      <a href="#pro-qualifications" data-view="pro-qualifications">PRO Qualifying</a>
+      <a href="#pro-elimination" data-view="pro-elimination">PRO Elimination</a>
+      <a class="nav-open" href="#open-qualifications" data-view="open-qualifications">OPEN Qualifying</a>
+      <a class="nav-open" href="#open-elimination" data-view="open-elimination">OPEN Elimination</a>
+    </nav>
+
+  </div>
+</header>
+
+<main>
+
+<section id="pro-qualifications-view" class="view-section active">
+  <section class="hero pro">
+    <h2>PRO Qualifying Results</h2>
+    <p>Gara #5 · EI1659 Drone Challenge(Roma)</p>
+  </section>
+
+  <section class="status-bar">
+    <div class="status-item">
+      Ultimo aggiornamento:
+      <strong id="pro-last-update">in attesa...</strong>
+    </div>
+
+    <div class="status-item">
+      Refresh automatico:
+      <strong>ogni 2 minuti</strong>
+    </div>
+
+    <div class="legend">
+      <span class="pill">
+        <span class="dot green"></span>
+        Top 8 / Double Elimination
+      </span>
+    </div>
+  </section>
+
+  <section class="table-card">
+    <div id="pro-race-results" class="table-scroll">
+      <div class="loading">Caricamento risultati PRO...</div>
+    </div>
+  </section>
+</section>
+
+
+<section id="pro-elimination-view" class="view-section">
+  <section class="hero pro">
+    <h2>PRO Double Elimination</h2>
+    <p>Gara #5 · EI1659 Drone Challenge(Roma)</p>
+  </section>
+
+  <section class="bracket-card">
+    <p class="bracket-note">
+      La pubblicazione dei dati avviene dopo la validazione da parte dei giudici di gara.
+    </p>
+
+    <div id="pro-bracket-results">
+      <div class="loading">Caricamento eliminatorie PRO...</div>
+    </div>
+  </section>
+</section>
+
+
+<section id="open-qualifications-view" class="view-section">
+  <section class="hero open">
+    <h2>OPEN Qualifying Results</h2>
+    <p>Gara #5 · EI1659 Drone Challenge(Roma)</p>
+  </section>
+
+  <section class="status-bar">
+    <div class="status-item">
+      Ultimo aggiornamento:
+      <strong id="open-last-update">in attesa...</strong>
+    </div>
+
+    <div class="status-item">
+      Refresh automatico:
+      <strong>ogni 2 minuti</strong>
+    </div>
+
+    <div class="legend">
+      <span class="pill">
+        <span class="dot green"></span>
+        Top 16
+      </span>
+
+      <span class="pill">
+        <span class="dot red"></span>
+        Outside Top 16
+      </span>
+    </div>
+  </section>
+
+  <section class="table-card">
+    <div id="open-race-results" class="table-scroll">
+      <div class="loading">Caricamento risultati OPEN...</div>
+    </div>
+  </section>
+</section>
+
+
+<section id="open-elimination-view" class="view-section">
+  <section class="hero open">
+    <h2>OPEN Double Elimination</h2>
+    <p>Gara #5 · EI1659 Drone Challenge(Roma)</p>
+  </section>
+
+  <section class="bracket-card">
+    <p class="bracket-note">
+      La pubblicazione dei dati avviene dopo la validazione da parte dei giudici di gara.
+    </p>
+
+    <div id="open-bracket-results">
+      <div class="loading">Caricamento eliminatorie OPEN...</div>
+    </div>
+  </section>
+</section>
+
+</main>
+
+<footer>GND · Risultati live</footer>
+
+<script>
+const SHEET_ID="1fNKQOTEUjQ17VSKYmlYhYHilcCtu-GrQT1q5Ym4Pw6o";
+const sheetURL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+
+/* OPEN: 16 PILOTS */
+const OPEN_LAYOUT={
+  1:{x:20,y:70},
+  2:{x:20,y:230},
+  3:{x:20,y:390},
+  4:{x:20,y:550},
+
+  5:{x:20,y:1390},
+  6:{x:20,y:1550},
+
+  7:{x:520,y:150},
+  8:{x:520,y:470},
+
+  9:{x:520,y:1390},
+  10:{x:520,y:1550},
+
+  11:{x:1030,y:1470},
+  12:{x:1030,y:310},
+
+  13:{x:1540,y:1470},
+
+  999:{x:1580,y:310}
+};
+
+const OPEN_STAGE_TITLES=[
+  {text:"1st Elimination Round",x:20,y:24,w:380},
+  {text:"2nd Elimination Round",x:520,y:24,w:380},
+  {text:"3rd Elimination Round",x:1030,y:24,w:380},
+  {text:"Final",x:1580,y:24,w:520}
+];
+
+const OPEN_CONNECTIONS=[
+  [1,7],
+  [2,7],
+  [3,8],
+  [4,8],
+
+  [7,12],
+  [8,12],
+  [12,999],
+
+  [5,9],
+  [6,10],
+  [9,11],
+  [10,11],
+  [11,13],
+  [13,999]
+];
+
+
+/* PRO: 8 PILOTS
+   Race 1 + Race 2 -> Race 4
+   Race 3 = loser bracket
+   Nessuna Race 6 / Race 7
+*/
+const PRO_LAYOUT={
+  1:{x:20,y:90},
+  2:{x:20,y:340},
+
+  3:{x:20,y:850},
+
+  4:{x:500,y:210},
+  5:{x:500,y:850},
+
+  999:{x:1030,y:310}
+};
+
+const PRO_STAGE_TITLES=[
+  {text:"1st Elimination Round",x:20,y:24,w:380},
+  {text:"2nd Elimination Round",x:500,y:24,w:380},
+  {text:"Final",x:1030,y:24,w:520}
+];
+
+const PRO_CONNECTIONS=[
+  [1,4],
+  [2,4],
+  [4,999],
+
+  [3,5],
+  [5,999]
+];
+
+
+function parseCSV(text){
+  const rows=[];
+  let row=[];
+  let cell="";
+  let inside=false;
+
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    const n=text[i+1];
+
+    if(c==='"' && inside && n==='"'){
+      cell+='"';
+      i++;
+    }
+    else if(c==='"'){
+      inside=!inside;
+    }
+    else if(c===',' && !inside){
+      row.push(cell.trim());
+      cell="";
+    }
+    else if((c==='\n'||c==='\r') && !inside){
+      if(cell!=="" || row.length>0){
+        row.push(cell.trim());
+        rows.push(row);
+        row=[];
+        cell="";
+      }
+    }
+    else{
+      cell+=c;
+    }
+  }
+
+  if(cell!=="" || row.length>0){
+    row.push(cell.trim());
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+
+function safe(v){
+  return String(v||"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+
+async function fetchRows(){
+  const sep=sheetURL.includes("?")?"&":"?";
+  const response=await fetch(
+    sheetURL+sep+"_="+Date.now(),
+    {cache:"no-store"}
+  );
+
+  if(!response.ok){
+    throw new Error("HTTP "+response.status);
+  }
+
+  return parseCSV(await response.text());
+}
+
+
+function normalizeCellText(value){
+  return String(value||"")
+    .replace(/\u00A0/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+
+/* QUALIFICATIONS */
+function findQualificationHeader(allRows){
+  return allRows.findIndex(row=>
+    row.some(c=>normalizeCellText(c)==="Nome + Cognome") &&
+    row.some(c=>normalizeCellText(c)==="Categoria") &&
+    row.some(c=>normalizeCellText(c)==="Miglior Tempo")
+  );
+}
+
+
+function getHeaderMap(row){
+  const map={};
+
+  row.forEach((cell,index)=>{
+    const key=normalizeCellText(cell);
+    if(key){
+      map[key]=index;
+    }
+  });
+
+  return map;
+}
+
+
+function getQualificationRows(allRows,category){
+  const headerIndex=findQualificationHeader(allRows);
+
+  if(headerIndex<0){
+    throw new Error("Intestazione qualifiche non trovata.");
+  }
+
+  const header=allRows[headerIndex];
+  const map=getHeaderMap(header);
+
+  const nameCol=map["Nome + Cognome"];
+  const idCol=map["ID"];
+  const categoryCol=map["Categoria"];
+  const posCol=map["Pos"];
+  const bestCol=map["Miglior Tempo"];
+
+  if([nameCol,idCol,categoryCol,posCol,bestCol].some(v=>v===undefined)){
+    throw new Error("Colonne qualifiche non riconosciute.");
+  }
+
+  const qcols=[];
+
+  header.forEach((cell,index)=>{
+    const txt=normalizeCellText(cell);
+
+    if(/^Qualifica\s*#\d+$/i.test(txt)){
+      qcols.push({
+        index,
+        title:txt.replace("Qualifica ","Q")
+      });
+    }
+  });
+
+  const rows=[];
+
+  for(let i=headerIndex+1;i<allRows.length;i++){
+    const row=allRows[i];
+
+    if(row.some(cell=>/ID\s*-\s*(OPEN|PRO)/i.test(normalizeCellText(cell)))){
+      break;
+    }
+
+    const rowCategory=
+      normalizeCellText(row[categoryCol]).toUpperCase();
+
+    if(rowCategory!==category){
+      continue;
+    }
+
+    const name=normalizeCellText(row[nameCol]);
+    const id=normalizeCellText(row[idCol]);
+
+    if(!name && !id){
+      continue;
+    }
+
+    const positionRaw=normalizeCellText(row[posCol]);
+
+    rows.push({
+      name,
+      id,
+      position:/^\d+$/.test(positionRaw)
+        ? parseInt(positionRaw,10)
+        : positionRaw,
+      best:normalizeCellText(row[bestCol]),
+      quals:qcols.map(q=>({
+        title:q.title,
+        value:normalizeCellText(row[q.index])
+      }))
+    });
+  }
+
+  rows.sort((a,b)=>
+    (typeof a.position==="number"?a.position:9999) -
+    (typeof b.position==="number"?b.position:9999)
+  );
+
+  return{
+    rows,
+    qualificationCols:qcols
+  };
+}
+
+
+function buildQualificationTable(category,data){
+  const limit=category==="PRO"?8:16;
+
+  let html=`
+    <table class="race-table">
+      <thead>
+        <tr>
+          <th class="sticky-col-1">Pos</th>
+          <th class="sticky-col-2">Pilota</th>
+          <th class="sticky-col-3">ID</th>
+          <th class="sticky-col-4">Best</th>
+  `;
+
+  data.qualificationCols.forEach(col=>{
+    html+=`<th>${safe(col.title)}</th>`;
+  });
+
+  html+=`
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  data.rows.forEach(row=>{
+    const pos=
+      typeof row.position==="number"
+        ? row.position
+        : null;
+
+    const qualified=
+      pos!==null &&
+      pos>=1 &&
+      pos<=limit;
+
+    const eliminated=
+      category==="OPEN" &&
+      pos!==null &&
+      pos>limit;
+
+    html+=`
+      <tr class="${qualified?"qualified":eliminated?"eliminated":""}">
+        <td class="sticky-col-1 position">${safe(row.position)}</td>
+        <td class="sticky-col-2 pilot-name">${safe(row.name)}</td>
+        <td class="sticky-col-3 pilot-id">${safe(row.id)}</td>
+        <td class="sticky-col-4 best-time">${safe(row.best)}</td>
+    `;
+
+    row.quals.forEach(q=>{
+      html+=`<td>${safe(q.value)}</td>`;
+    });
+
+    html+=`</tr>`;
+  });
+
+  html+=`
+      </tbody>
+    </table>
+  `;
+
+  return html;
+}
+
+
+function renderQualificationsFromRows(allRows){
+  const pro=getQualificationRows(allRows,"PRO");
+  const open=getQualificationRows(allRows,"OPEN");
+
+  document.getElementById("pro-race-results").innerHTML=
+    buildQualificationTable("PRO",pro);
+
+  document.getElementById("open-race-results").innerHTML=
+    buildQualificationTable("OPEN",open);
+
+  const update=new Date().toLocaleTimeString(
+    "it-IT",
+    {
+      hour:"2-digit",
+      minute:"2-digit",
+      second:"2-digit"
+    }
+  );
+
+  document.getElementById("pro-last-update").textContent=update;
+  document.getElementById("open-last-update").textContent=update;
+}
+
+
+/* BRACKETS */
+function findRoundOneRows(allRows){
+  const rows=[];
+
+  allRows.forEach((row,rowIndex)=>{
+    row.forEach(cell=>{
+      if(/^Round\s*1$/i.test(normalizeCellText(cell))){
+        if(!rows.includes(rowIndex)){
+          rows.push(rowIndex);
+        }
+      }
+    });
+  });
+
+  return rows;
+}
+
+
+function getBracketZones(allRows){
+  const roundOneRows=findRoundOneRows(allRows);
+
+  if(roundOneRows.length<2){
+    throw new Error(
+      `Trovati solo ${roundOneRows.length} blocchi Round 1.`
+    );
+  }
+
+  return{
+    open:{
+      start:roundOneRows[0],
+      end:roundOneRows[1]-1
+    },
+
+    pro:{
+      start:roundOneRows[1],
+      end:allRows.length-1
+    }
+  };
+}
+
+
+function findRoundsInZone(allRows,start,end){
+  const rounds=new Map();
+
+  for(let rowIndex=start;rowIndex<=end;rowIndex++){
+    const row=allRows[rowIndex]||[];
+
+    row.forEach((cell,colIndex)=>{
+      const text=normalizeCellText(cell);
+
+      const roundMatch=
+        text.match(/^Round\s*(\d+)$/i);
+
+      const finalMatch=
+        /^(Final|Finale)$/i.test(text);
+
+      if(!roundMatch && !finalMatch){
+        return;
+      }
+
+      const number=
+        finalMatch
+          ? 999
+          : parseInt(roundMatch[1],10);
+
+      if(rounds.has(number)){
+        return;
+      }
+
+      const pilots=[];
+
+      for(let i=1;i<=4;i++){
+        const sourceRow=
+          allRows[rowIndex+i]||[];
+
+        pilots.push({
+          name:normalizeCellText(sourceRow[colIndex]),
+          id:normalizeCellText(sourceRow[colIndex+1]),
+          rank:normalizeCellText(sourceRow[colIndex+2]),
+          ace1:normalizeCellText(sourceRow[colIndex+2]),
+          ace2:normalizeCellText(sourceRow[colIndex+3]),
+          ace3:normalizeCellText(sourceRow[colIndex+4]),
+          ace4:normalizeCellText(sourceRow[colIndex+5])
+        });
+      }
+
+      rounds.set(number,{
+        number,
+        pilots
+      });
+    });
+  }
+
+  return rounds;
+}
+
+
+function normalizeRank(value){
+  const txt=normalizeCellText(value);
+  const n=parseInt(txt,10);
+  return isNaN(n)?txt:n;
+}
+
+
+function buildFinalHeat(round,layout){
+  const pilots=round?round.pilots:[];
+
+  let html=`
+    <div class="heat-card final-card"
+         style="left:${layout.x}px;top:${layout.y}px">
+
+      <div class="heat-title">
+        <div class="heat-label">Final</div>
+
+        <div class="heat-meta">
+          <span>Pilot / ID</span>
+          <span>A1</span>
+          <span>A2</span>
+          <span>A3</span>
+          <span>A4</span>
+        </div>
+      </div>
+  `;
+
+  for(let i=0;i<4;i++){
+    const pilot=pilots[i]||{
+      name:"",
+      id:"",
+      ace1:"",
+      ace2:"",
+      ace3:"",
+      ace4:""
+    };
+
+    const empty=
+      !pilot.name &&
+      !pilot.id &&
+      !pilot.ace1 &&
+      !pilot.ace2 &&
+      !pilot.ace3 &&
+      !pilot.ace4;
+
+    const best=[
+      pilot.ace1,
+      pilot.ace2,
+      pilot.ace3,
+      pilot.ace4
+    ].some(v=>normalizeRank(v)===1);
+
+    html+=`
+      <div class="heat-row ${best?"rank-1":""}">
+        <span class="name ${empty?"placeholder":""}">
+          ${safe(pilot.name)||`Pilot ${i+1}`}
+        </span>
+
+        <span class="pid ${empty?"placeholder":""}">
+          ${safe(pilot.id)||"---"}
+        </span>
+
+        <span class="ace-rank">${safe(pilot.ace1)||"-"}</span>
+        <span class="ace-rank">${safe(pilot.ace2)||"-"}</span>
+        <span class="ace-rank">${safe(pilot.ace3)||"-"}</span>
+        <span class="ace-rank">${safe(pilot.ace4)||"-"}</span>
+      </div>
+    `;
+  }
+
+  return html+"</div>";
+}
+
+
+function buildHeat(number,round,layout){
+  if(number===999){
+    return buildFinalHeat(round,layout);
+  }
+
+  const pilots=round?round.pilots:[];
+
+  let html=`
+    <div class="heat-card"
+         style="left:${layout.x}px;top:${layout.y}px">
+
+      <div class="heat-title">
+        <div class="heat-label">Race ${number}</div>
+
+        <div class="heat-meta">
+          <span>Pilot / ID</span>
+          <span>Pos</span>
+        </div>
+      </div>
+  `;
+
+  for(let i=0;i<4;i++){
+    const pilot=pilots[i]||{
+      name:"",
+      id:"",
+      rank:""
+    };
+
+    const empty=
+      !pilot.name &&
+      !pilot.id &&
+      !pilot.rank;
+
+    const rank=normalizeRank(pilot.rank);
+
+    const rankClass=
+      rank===1
+        ?"rank-1"
+        :rank===2
+          ?"rank-2"
+          :"";
+
+    html+=`
+      <div class="heat-row ${rankClass}">
+        <span class="name ${empty?"placeholder":""}">
+          ${safe(pilot.name)||`Pilot ${i+1}`}
+        </span>
+
+        <span class="pid ${empty?"placeholder":""}">
+          ${safe(pilot.id)||"---"}
+        </span>
+
+        <span class="rank ${empty?"placeholder":""}">
+          ${safe(pilot.rank)||"-"}
+        </span>
+      </div>
+    `;
+  }
+
+  return html+"</div>";
+}
+
+
+function connectorPath(from,to,layout){
+  const a=layout[from];
+  const b=layout[to];
+
+  if(!a || !b){
+    return "";
+  }
+
+  const fromWidth=
+    from===999
+      ?520
+      :380;
+
+  const x1=a.x+fromWidth;
+  const y1=a.y+67;
+
+  const x2=b.x;
+  const y2=b.y+67;
+
+  const mid=
+    x1+Math.max(
+      18,
+      (x2-x1)/2
+    );
+
+  return`
+    <path d="
+      M ${x1} ${y1}
+      H ${mid}
+      V ${y2}
+      H ${x2}
+    "/>
+  `;
+}
+
+
+function buildBracket(rounds,config){
+  let html=`
+    <div class="bracket-viewport"
+         style="
+           min-width:${config.width}px;
+           width:${config.width}px;
+           height:${config.height}px
+         ">
+
+      <svg class="bracket-lines"
+           width="${config.width}"
+           height="${config.height}"
+           viewBox="0 0 ${config.width} ${config.height}"
+           preserveAspectRatio="none">
+  `;
+
+  config.connections.forEach(([from,to])=>{
+    html+=connectorPath(
+      from,
+      to,
+      config.layout
+    );
+  });
+
+  html+="</svg>";
+
+  config.stageTitles.forEach(title=>{
+    html+=`
+      <div class="stage-title"
+           style="
+             left:${title.x}px;
+             top:${title.y}px;
+             width:${title.w}px
+           ">
+        ${safe(title.text)}
+      </div>
+    `;
+  });
+
+  if(config.lowerTitle){
+    html+=`
+      <div class="lower-title"
+           style="
+             left:20px;
+             top:${config.lowerTitleTop}px;
+             width:${config.lowerTitleWidth}px
+           ">
+        ${safe(config.lowerTitle)}
+      </div>
+    `;
+  }
+
+  Object.keys(config.layout)
+    .map(Number)
+    .sort((a,b)=>a-b)
+    .forEach(number=>{
+      html+=buildHeat(
+        number,
+        rounds.get(number),
+        config.layout[number]
+      );
+    });
+
+  return html+"</div>";
+}
+
+
+function renderBracketsFromRows(allRows){
+  const zones=getBracketZones(allRows);
+
+  const openRounds=
+    findRoundsInZone(
+      allRows,
+      zones.open.start,
+      zones.open.end
+    );
+
+  const proRounds=
+    findRoundsInZone(
+      allRows,
+      zones.pro.start,
+      zones.pro.end
+    );
+
+  if(!openRounds.size){
+    throw new Error("Nessun Round OPEN trovato.");
+  }
+
+  if(!proRounds.size){
+    throw new Error("Nessun Round PRO trovato.");
+  }
+
+  document.getElementById("open-bracket-results").innerHTML=
+    buildBracket(
+      openRounds,
+      {
+        layout:OPEN_LAYOUT,
+        stageTitles:OPEN_STAGE_TITLES,
+        connections:OPEN_CONNECTIONS,
+        width:2200,
+        height:1800,
+        lowerTitle:"Double Elimination Sequence",
+        lowerTitleTop:1320,
+        lowerTitleWidth:1900
+      }
+    );
+
+  document.getElementById("pro-bracket-results").innerHTML=
+    buildBracket(
+      proRounds,
+      {
+        layout:PRO_LAYOUT,
+        stageTitles:PRO_STAGE_TITLES,
+        connections:PRO_CONNECTIONS,
+        width:1650,
+        height:1150,
+        lowerTitle:"Loser Bracket",
+        lowerTitleTop:780,
+        lowerTitleWidth:860
+      }
+    );
+}
+
+
+/* NAVIGATION */
+const validViews=[
+  "pro-qualifications",
+  "pro-elimination",
+  "open-qualifications",
+  "open-elimination"
+];
+
+
+function setView(view){
+  if(!validViews.includes(view)){
+    view="pro-qualifications";
+  }
+
+  document
+    .querySelectorAll(".view-section")
+    .forEach(section=>{
+      section.classList.remove("active");
+    });
+
+  document
+    .querySelectorAll("nav a[data-view]")
+    .forEach(link=>{
+      link.classList.remove("active");
+    });
+
+  const section=
+    document.getElementById(
+      view+"-view"
+    );
+
+  const link=
+    document.querySelector(
+      `nav a[data-view="${view}"]`
+    );
+
+  if(section){
+    section.classList.add("active");
+  }
+
+  if(link){
+    link.classList.add("active");
+  }
+}
+
+
+document
+  .querySelectorAll("nav a[data-view]")
+  .forEach(link=>{
+    link.addEventListener("click",event=>{
+      event.preventDefault();
+
+      const view=
+        link.getAttribute("data-view");
+
+      window.location.hash=view;
+      setView(view);
+    });
+  });
+
+
+window.addEventListener(
+  "hashchange",
+  ()=>{
+    setView(
+      window.location.hash.replace("#","")
+    );
+  }
+);
+
+
+setView(
+  window.location.hash.replace("#","") ||
+  "pro-qualifications"
+);
+
+
+/* DATA REFRESH
+   Una sola richiesta al Google Sheet per ciclo:
+   gli stessi dati vengono usati sia per le qualifiche
+   sia per i bracket PRO/OPEN.
+*/
+const REFRESH_INTERVAL=120000;
+let lastSuccessfulRefresh=0;
+let refreshInProgress=false;
+
+function showDataError(error){
+  const message=safe(error.message || String(error));
+
+  const qualHtml=
+    `<div class="error">Errore caricamento dati: ${message}</div>`;
+
+  const bracketHtml=
+    `<div class="error">Errore caricamento eliminatorie: ${message}</div>`;
+
+  document.getElementById("pro-race-results").innerHTML=qualHtml;
+  document.getElementById("open-race-results").innerHTML=qualHtml;
+  document.getElementById("open-bracket-results").innerHTML=bracketHtml;
+  document.getElementById("pro-bracket-results").innerHTML=bracketHtml;
+}
+
+async function loadAllData(){
+  if(refreshInProgress){
+    return;
+  }
+
+  refreshInProgress=true;
+
+  try{
+    const allRows=await fetchRows();
+
+    renderQualificationsFromRows(allRows);
+    renderBracketsFromRows(allRows);
+
+    lastSuccessfulRefresh=Date.now();
+  }
+  catch(error){
+    console.error("GND Live Results:",error);
+    showDataError(error);
+  }
+  finally{
+    refreshInProgress=false;
+  }
+}
+
+function refreshIfVisible(){
+  if(document.visibilityState==="visible"){
+    loadAllData();
+  }
+}
+
+/* Primo caricamento */
+loadAllData();
+
+/* Refresh automatico: una sola lettura ogni 2 minuti.
+   Se il tab è in background non vengono effettuate richieste. */
+setInterval(refreshIfVisible,REFRESH_INTERVAL);
+
+/* Quando l'utente torna sulla pagina:
+   aggiorna subito solo se i dati hanno più di 2 minuti. */
+document.addEventListener("visibilitychange",()=>{
+  if(
+    document.visibilityState==="visible" &&
+    Date.now()-lastSuccessfulRefresh>=REFRESH_INTERVAL
+  ){
+    loadAllData();
+  }
+});
+</script>
+
+</body>
+</html>
