@@ -34,3 +34,23 @@ nav a,.nav button{border-color:transparent!important;background:#000!important;c
 .race-progress-hud{position:relative;top:auto;left:auto;width:100%;margin:12px 0 0;transform:none}
 .race-progress-hud.popout-race-progress{position:fixed;top:10px;left:50%;width:min(620px,calc(100% - 32px));margin:0;transform:translateX(-50%);z-index:100}
 body.presentation-mode #raceProgressHud{display:none}
+/* Higher contrast and larger type for elimination brackets. */
+.bracket-card{padding:18px!important;background:#000!important;border-color:#30332b!important;overflow:auto!important}
+.bracket-card .bracket-note{color:#b4b8af!important;font-size:14px!important;line-height:1.6!important}
+.bracket-card .bracket-viewport{background:#000!important;border-color:#3a3d32!important;overflow:auto!important}
+.bracket-card .bracket-lines path{stroke:#89f1ff!important;stroke-width:2.5!important;opacity:.72!important}
+.bracket-card .stage-title{height:36px!important;line-height:36px!important;padding:0 10px!important;background:#10120b!important;color:#89f1ff!important;border:1px solid #555943!important;font-size:14px!important;font-weight:900!important;letter-spacing:.06em!important}
+.bracket-card .lower-title{height:28px!important;line-height:28px!important;background:#11130b!important;color:#f5ee26!important;border:1px solid #555943!important;font-size:12px!important;letter-spacing:.06em!important}
+.bracket-card .heat-card{background:#050606!important;border:1px solid #45483a!important;color:#f2f2ee!important}
+.bracket-card .heat-title{min-height:38px!important;background:#12140d!important;border-bottom:1px solid #45483a!important;color:#f2f2ee!important}
+.bracket-card .heat-label{font-size:14px!important;color:#f5ee26!important;border-color:#45483a!important}
+.bracket-card .heat-meta{font-size:12px!important;color:#89f1ff!important;font-weight:800!important}
+.bracket-card .heat-row{min-height:36px!important;background:#080909!important;border-bottom:1px solid #30332b!important;color:#f2f2ee!important;font-size:13px!important;line-height:1.35!important}
+.bracket-card .heat-row .name{color:#f2f2ee!important;font-weight:800!important;white-space:nowrap!important}
+.bracket-card .heat-row .pid{color:#89f1ff!important;border-color:#30332b!important;font-weight:800!important}
+.bracket-card .heat-row .rank,.bracket-card .heat-row .ace-rank{color:#c2c7be!important;border-color:#30332b!important;font-size:13px!important;font-weight:800!important}
+.bracket-card .heat-row.rank-1{background:#171600!important;border-left:3px solid #f5ee26!important}
+.bracket-card .heat-row.rank-1 .rank,.bracket-card .heat-row.rank-1 .ace-rank{color:#f5ee26!important}
+.bracket-card .heat-row.rank-2{background:#071417!important;border-left:3px solid #89f1ff!important}
+.bracket-card .heat-row.rank-2 .rank,.bracket-card .heat-row.rank-2 .ace-rank{color:#89f1ff!important}
+.bracket-card .heat-row .placeholder{color:#858b82!important;font-style:italic!important}
